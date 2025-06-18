@@ -1,0 +1,1519 @@
+{
+  "name": "Music Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apibox.erweima.ai/api/v1/lyrics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.API }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $('Webhook').item.json.body.prompt }}"
+            },
+            {
+              "name": "callBackUrl",
+              "value": "https://api.example.com/callback"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -580,
+        -40
+      ],
+      "id": "6f858fc7-341a-44fa-b49b-dad0d1952fb3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        -40
+      ],
+      "id": "97944d50-759a-4699-9cdd-1b85b96e96e6",
+      "name": "Wait",
+      "webhookId": "edfc4f79-06e8-4cce-9cfe-a4f932cf9470"
+    },
+    {
+      "parameters": {
+        "url": "https://apibox.erweima.ai/api/v1/lyrics/record-info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP Request').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        20,
+        -40
+      ],
+      "id": "498e9fec-6c0a-4865-9219-35d60e89893e",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "04f26ddf-ce79-4602-9dcf-c7c682c06a89",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        -40
+      ],
+      "id": "61768f03-e610-4278-a4c1-e9ea99a5d0f9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.novita.ai/v3/openai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer sk__RH6xdwCPJz0f97tPmyNGWAJpkRVz6MjN98R-VUOggc"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"meta-llama/llama-3.1-8b-instruct\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a music AI assistant that transforms a user's creative input into a structured JSON format for generating music using Suno's API.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze the following user prompt and return a JSON object for music generation.\\n\\nRules:\\n1. Always set \\\"customMode\\\": true.\\n2. If the music is instrumental (no singing), include:\\n- \\\"style\\\" (max 200 chars)\\n- \\\"title\\\" (max 80 chars)\\n3. If the music is not instrumental (has lyrics), include:\\n- \\\"style\\\"\\n- \\\"prompt\\\"\\n- \\\"title\\\"\\n4. Always set:\\n- \\\"model\\\": \\\"V3_5\\\"\\n- \\\"instrumental\\\": true/false (based on input)\\n- \\\"negativeTags\\\": \\\"Heavy Metal, Upbeat Drums\\\"\\n- \\\"callBackUrl\\\": \\\"https://api.example.com/callback\\\"\\n\\nOutput ONLY the JSON.\\n\\nUser Prompt: {{ $('Webhook').item.json.body.prompt }}\"\n    }\n  ],\n  \"max_tokens\": 512\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        -200
+      ],
+      "id": "5d36be7b-ea98-4eb7-bde1-c8f997d21924",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json.choices[0].message.content;\n\nreturn [\n  {\n    json: JSON.parse(response)\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        -200
+      ],
+      "id": "0783a072-4959-4dbc-9e47-030e66141fe9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apibox.erweima.ai/api/v1/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $('HTTP Request1').item.json.data.response.data[0].text }}"
+            },
+            {
+              "name": "style",
+              "value": "={{ $json.style }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "customMode",
+              "value": "={{ $json.customMode }}"
+            },
+            {
+              "name": "instrumental",
+              "value": "={{ $json.instrumental }}"
+            },
+            {
+              "name": "model",
+              "value": "=V4_5"
+            },
+            {
+              "name": "negativeTags",
+              "value": "={{ $json.negativeTags }}"
+            },
+            {
+              "name": "callBackUrl",
+              "value": "https://api.example.com/callback"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        -200
+      ],
+      "id": "90bb8604-33bf-4a06-8ef2-e9b4d3d69f83",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        -200
+      ],
+      "id": "38bf431d-8612-44bd-b667-c0b2b42e62c8",
+      "name": "Wait1",
+      "webhookId": "1a49c018-0f28-4dd3-bcc0-d1a2920187f7"
+    },
+    {
+      "parameters": {
+        "url": "https://apibox.erweima.ai/api/v1/generate/record-info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP Request3').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1720,
+        -200
+      ],
+      "id": "f85ef84b-d9e2-4121-bdab-87ff992fcf3f",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2d631d11-5c73-4e69-aaec-3602e9a5a1d9",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "SUCCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "a706d65a-2295-437a-b4ee-6dbed4774eda",
+              "leftValue": "={{ $json.data.response.sunoData[1].audioUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1fc4b20e-33a0-4fe2-b201-04fc11f8c38a",
+              "leftValue": "={{ $json.data.response.sunoData[0].audioUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        -200
+      ],
+      "id": "17e7e8d3-3e77-490b-a64e-e122fec6ced1",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apibox.erweima.ai/api/v1/mp4/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            },
+            {
+              "name": "audioId",
+              "value": "={{ $json.data.response.sunoData[0].id }}"
+            },
+            {
+              "name": "callBackUrl",
+              "value": "https://api.example.com/callback"
+            },
+            {
+              "name": "author",
+              "value": "Sai-AutomateA2Z"
+            },
+            {
+              "name": "domainName",
+              "value": "AutomateA2Z.in"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2380,
+        -280
+      ],
+      "id": "818b8186-1dc3-4d5a-a80b-ba73aacb44c1",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "url": "https://apibox.erweima.ai/api/v1/mp4/record-info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP Request5').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3020,
+        -280
+      ],
+      "id": "14470cdd-0114-4f7d-9c96-80f7ac628c5b",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2820,
+        -280
+      ],
+      "id": "d193dfee-be85-4455-98aa-ec7e67d27fa4",
+      "name": "Wait2",
+      "webhookId": "4bc808b1-1318-4813-8e27-babfe82cb154"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "25a1c12a-d2b1-40b8-98e2-b1e0cb902956",
+              "leftValue": "={{ $json.data.successFlag }}",
+              "rightValue": "SUCCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3440,
+        -280
+      ],
+      "id": "5e6c4ab9-da20-4f6d-bc95-be3022ca3324",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "61c9cdf2-2a03-414f-88a4-ebe30069d141",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1060,
+        -40
+      ],
+      "id": "e03023d6-24da-47ee-a4ab-6ab28a05b0ff",
+      "name": "Webhook",
+      "webhookId": "61c9cdf2-2a03-414f-88a4-ebe30069d141"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9616200b-f711-4264-a982-569d8627828f",
+              "name": "API",
+              "value": "cfd94720e022312069475c5788327b5e",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -840,
+        -40
+      ],
+      "id": "03e74e8b-7b74-4e40-a249-75ca9150123e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apibox.erweima.ai/api/v1/mp4/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP Request4').item.json.data.taskId }}"
+            },
+            {
+              "name": "audioId",
+              "value": "={{ $('HTTP Request4').item.json.data.response.sunoData[1].id }}"
+            },
+            {
+              "name": "callBackUrl",
+              "value": "https://api.example.com/callback"
+            },
+            {
+              "name": "author",
+              "value": "Suno Artist"
+            },
+            {
+              "name": "domainName",
+              "value": "music.example.com"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3660,
+        -380
+      ],
+      "id": "c649a6a1-4a48-4c6a-92fa-fd516642074a",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4100,
+        -380
+      ],
+      "id": "44daac43-b31e-4c27-8ddb-b4f1121d0834",
+      "name": "Wait3",
+      "webhookId": "92bc0c77-d775-4958-85b4-64af934156de"
+    },
+    {
+      "parameters": {
+        "url": "https://apibox.erweima.ai/api/v1/mp4/record-info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $('HTTP Request7').item.json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields').item.json.API }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4320,
+        -380
+      ],
+      "id": "587af56c-696e-47d5-a7e2-1cf8f87bd327",
+      "name": "HTTP Request8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8764689f-aed9-4c8a-b30b-bfdf02b759e2",
+              "leftValue": "={{ $json.data.successFlag }}",
+              "rightValue": "SUCCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4760,
+        -380
+      ],
+      "id": "71a48ba4-9f60-421a-a685-b08dd445b4ee",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da8a693f-a29a-4f49-a33d-991e40ac6abe",
+              "name": "URL-1",
+              "value": "={{ $('If2').item.json.data.response.videoUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "14d86ba9-9d5b-40d5-8889-8a7e08554724",
+              "name": "URL-2",
+              "value": "={{ $json.data.response.videoUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4980,
+        -480
+      ],
+      "id": "24da056a-dfc1-4664-8f0b-c52e79a721ee",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "🎬 Your AI Music Video is Ready – Save It Before It Expires in 15 Days!",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\" />\n    <title>Your AI Music Videos Are Ready!</title>\n    <style>\n      body {\n        background-color: #1c1c1c;\n        color: #ffffff;\n        font-family: Arial, sans-serif;\n        padding: 20px;\n        line-height: 1.6;\n      }\n\n      .container {\n        max-width: 600px;\n        margin: auto;\n        background: #2c2c2c;\n        border-radius: 12px;\n        padding: 30px;\n        box-shadow: 0 0 20px #0ff;\n        box-sizing: border-box;\n      }\n\n      h1 {\n        color: #00e0ff;\n        font-size: 24px;\n        text-align: center;\n        margin-bottom: 20px;\n      }\n\n      p {\n        font-size: 15px;\n        color: #ddd;\n      }\n\n      .prompt-box {\n        background: #1f1f1f;\n        padding: 12px 16px;\n        border-left: 4px solid #00e0ff;\n        border-radius: 6px;\n        margin-bottom: 20px;\n        font-style: italic;\n        color: #aaa;\n        font-size: 14px;\n      }\n\n      .btn {\n        display: block;\n        width: 100%;\n        margin: 10px 0;\n        padding: 10px;\n        text-align: center;\n        background: linear-gradient(to right, #00c6ff, #0072ff);\n        color: white;\n        text-decoration: none;\n        border-radius: 6px;\n        font-weight: bold;\n        font-size: 14px;\n        box-sizing: border-box;\n      }\n\n      .warning {\n        width: 100%;\n        background-color: #ffb400;\n        padding: 12px 16px;\n        text-align: center;\n        border-radius: 8px;\n        font-weight: bold;\n        color: #1c1c1c;\n        margin-top: 20px;\n        font-size: 14px;\n        box-sizing: border-box;\n      }\n\n      .note {\n        font-size: 13px;\n        color: #bbb;\n        margin-top: 12px;\n        line-height: 1.5;\n        background: #333;\n        padding: 12px;\n        border-radius: 8px;\n      }\n\n      @media screen and (max-width: 600px) {\n        .container {\n          padding: 20px;\n        }\n        h1 {\n          font-size: 20px;\n        }\n        .btn {\n          font-size: 13px;\n        }\n        .warning {\n          font-size: 13px;\n        }\n      }\n    </style>\n  </head>\n\n  <body>\n    <div class=\"container\">\n      <h1>🎶 Your AI Music Videos Are Ready!</h1>\n      <p>Hey there,</p>\n      <p>Thanks for using <strong>MuseGenie</strong>! Based on your prompt below, we've generated your custom AI music video(s):</p>\n\n      <div class=\"prompt-box\">\n        \"{{ $('Webhook').item.json.body.prompt }}\"\n      </div>\n\n      <!-- 🔁 Video download buttons -->\n      <a href=\"{{ $json['URL-1'] }}\" class=\"btn\" target=\"_blank\">⬇ Download Video 1</a>\n      <a href=\"{{ $json['URL-2'] }}\" class=\"btn\" target=\"_blank\">⬇ Download Video 2</a>\n\n      <div class=\"warning\">\n        ⚠️ These video links will expire in <strong>15 days</strong>.<br />\n        Please download and <u>save them locally</u> to avoid losing access.\n      </div>\n\n      <div class=\"note\">\n        💡 If clicking the download button opens the video instead of downloading:<br />\n        ➤ Tap the <strong>three dots</strong> (⋮) on the video player<br />\n        ➤ Select <strong>\"Download\"</strong> from the menu\n      </div>\n\n      <p style=\"margin-top: 30px; font-size: 13px; color: #999; text-align: center;\">\n        Powered by MuseGenie · AI Music Video Generator<br />\n        © 2025 AutomateA2Z\n      </p>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        5200,
+        -480
+      ],
+      "id": "a049a101-6431-414d-8957-e4a0b0cb34bc",
+      "name": "Gmail",
+      "webhookId": "404f1f20-0a8e-4e70-bbf3-a97cc7930b12",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8rMBQ7MMqGXn46Ge",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e595485b-8248-401d-9917-bbdb9e2d94e5",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -40
+      ],
+      "id": "592afb24-075b-42dd-9d1d-ae717c63b9b5",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "errorMessage": "An error occured"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        220
+      ],
+      "id": "c47ca8ac-c620-47a7-9a16-4e460e8abe5c",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c81cfe9c-2864-445b-9087-e83ff9dfff24",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -40
+      ],
+      "id": "74174c9a-465c-49af-9fbb-33652d1778e9",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error occured"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        700,
+        180
+      ],
+      "id": "d8d41c3e-785e-478a-83e9-fcd10008dcd4",
+      "name": "Stop and Error1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f76b2a2b-2245-4431-9861-a068bbf81e40",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1260,
+        -200
+      ],
+      "id": "116f8841-d451-4583-8605-1efa182b165f",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        100
+      ],
+      "id": "bc9b20da-579c-42bb-9fdd-dfc67c9ee7e7",
+      "name": "Stop and Error2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60ecff61-16f0-49b3-ac81-e1169c132f9b",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1940,
+        -200
+      ],
+      "id": "0a4516c7-c9c1-4618-a340-c75ffc6e53da",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        140
+      ],
+      "id": "de8f4d87-b73e-4bb0-baff-33b9bbb8e8bd",
+      "name": "Stop and Error3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c41e26f4-2577-432d-8b7f-7d0ccf8ec7ca",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2600,
+        -280
+      ],
+      "id": "98e2c06d-2a2f-4165-9bba-58ecb3f843ec",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        -20
+      ],
+      "id": "f461e28b-b523-427d-b067-02ed450eee47",
+      "name": "Stop and Error4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "599d810a-627e-4acf-9409-addaeb0f7380",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3240,
+        -280
+      ],
+      "id": "3fa094dd-dd53-43b1-bf27-f74e20af3e12",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3340,
+        60
+      ],
+      "id": "7070bfca-1855-4349-b24f-c2f1779ba586",
+      "name": "Stop and Error5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1b74a373-dcb9-4661-9734-90fa874ddf8b",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3880,
+        -380
+      ],
+      "id": "c9dd89d0-cc3e-4d04-9237-68993feb4cc0",
+      "name": "If10"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3980,
+        -120
+      ],
+      "id": "f0ab8d4e-2b9e-41f3-bd91-f52dc0e23c39",
+      "name": "Stop and Error6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "48e436a2-12a1-478b-aacb-358b52dcf03a",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4540,
+        -380
+      ],
+      "id": "151d0c35-a9af-4966-826b-0218b49e169f",
+      "name": "If11"
+    },
+    {
+      "parameters": {
+        "errorMessage": "error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        4660,
+        40
+      ],
+      "id": "d960887a-60fa-49c9-8c25-f6d2d10d54de",
+      "name": "Stop and Error7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "If10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If10": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If11": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1f578685-48a5-498c-8fc4-872d6f2235e4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5ac966b211f1c01163f4ab6e2b40d7b5e7e3c1714a3f0cb9db16862c17a2330d"
+  },
+  "id": "yJZ3mTpi5Dd2wzG7",
+  "tags": []
+}
