@@ -1,0 +1,576 @@
+{
+  "name": "Real Estate AI Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "045bfa21-61ea-471d-bd29-443a283f8908",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        380,
+        340
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.results",
+        "options": {}
+      },
+      "id": "b4821b00-1216-4f6e-8ce1-98e87a096592",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1240,
+        160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.data }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"results\": {\n    \"type\": \"array\",\n    \"items\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"address\": { \"type\": \"string\" },\n        \"price\": { \"type\": \"number\" },\n        \"bedrooms\": { \"type\": \"number\" },\n        \"bathrooms\": { \"type\": \"number\" },\n        \"size\": { \"type\": \"number\" },\n        \"sale_date\": { \"type\": \"string\" },\n        \"url\": { \"type\": \"string\" },\n        \"realtor\": { \"type\": \"string\" },\n        \"type\": { \"type\": \"string\" },\n        \"price_per_sqft\": { \"type\": \"number\" }\n      }\n    }\n  }\n}\n",
+        "options": {
+          "systemPromptTemplate": "=You are an expert data extractor. Analyze the given data and extract detailed information about recently sold properties. For each property, provide the following details:\n1. \"address\": Full address of the property.\n2. \"price\": Final sale price of the property.\n3. \"bedrooms\": Number of bedrooms.\n4. \"bathrooms\": Number of bathrooms.\n5. \"size\": Square footage of the property (if available).\n6. \"sale_date\": Date the property was sold.\n7. \"url\": URL of the property listing.\n8. \"realtor\": Name of the realtor or agency handling the sale.\n9. \"type\": Type of home (e.g., Single-family, condo, townhome).\n10. \"price_per_sqft\": Calculate the price per square foot using the formula: `price / size` (if both are available).\n\nAlways output the data in a JSON array called `results`, with each property represented as an object containing the above keys."
+        }
+      },
+      "id": "5a5233d9-578c-40c0-9a9e-c4da1809b8bb",
+      "name": "Information Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        800,
+        340
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "https://r.jina.ai/https://www.zillow.com/san-francisco-ca/sold/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22west%22%3A-122.53701297167969%2C%22east%22%3A-122.33651248339844%2C%22south%22%3A37.696960579597906%2C%22north%22%3A37.81395190958527%7D%2C%22mapZoom%22%3A13%2C%22usersSearchTerm%22%3A%22San%20Francisco%20CA%22%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A20330%2C%22regionType%22%3A6%7D%5D%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22fsba%22%3A%7B%22value%22%3Afalse%7D%2C%22fsbo%22%3A%7B%22value%22%3Afalse%7D%2C%22nc%22%3A%7B%22value%22%3Afalse%7D%2C%22cmsn%22%3A%7B%22value%22%3Afalse%7D%2C%22auc%22%3A%7B%22value%22%3Afalse%7D%2C%22fore%22%3A%7B%22value%22%3Afalse%7D%2C%22rs%22%3A%7B%22value%22%3Atrue%7D%7D%2C%22isListVisible%22%3Atrue%7D",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "b7f7690a-afae-4a13-a3de-3add72324da3",
+      "name": "Jina Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        340
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7BwuN1gEghFbCo0S",
+          "name": "Jina Auth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "bb98bf9f-7756-4588-8df4-f79ab365b4c8",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "43a4946c-5b2f-4176-a3c0-8f18feff845c",
+      "name": "SerpAPI",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        600
+      ],
+      "credentials": {
+        "serpApi": {
+          "id": "WES4WDYHDbn6qtWl",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "Real Estate Update",
+        "message": "={{ $json.message.content }}",
+        "options": {}
+      },
+      "id": "19511f77-60df-4ac1-9bcd-dcad4e3a9b2a",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2060,
+        400
+      ],
+      "webhookId": "e6e274a1-c1ab-4562-828e-8d1d72afe1ad",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TFQDvjUrgdE1DdVx",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C082YN2A28Z",
+          "mode": "list",
+          "cachedResultName": "real-estate"
+        },
+        "text": "={{ $json.message.content }}",
+        "otherOptions": {}
+      },
+      "id": "e9dbc120-1907-4799-8ca6-6cb920a958ed",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        2060,
+        580
+      ],
+      "webhookId": "7eb69037-bb16-414a-a973-b71639f8a059",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "4BbsXpuuF0zlQW0i",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QXYgXxcEZfOqE-9G6buGtNwaGk7sAe57h2lt-Pcn9I0",
+          "mode": "list",
+          "cachedResultName": "Real Estate Agent Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QXYgXxcEZfOqE-9G6buGtNwaGk7sAe57h2lt-Pcn9I0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QXYgXxcEZfOqE-9G6buGtNwaGk7sAe57h2lt-Pcn9I0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bedrooms",
+              "displayName": "bedrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bathrooms",
+              "displayName": "bathrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "size",
+              "displayName": "size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sale_date",
+              "displayName": "sale_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "realtor",
+              "displayName": "realtor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price_per_sqft",
+              "displayName": "price_per_sqft",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2bf1cce1-c185-4c53-99a1-61766de8402a",
+      "name": "Real Estate Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1460,
+        160
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Jf19ZABRFFBqxs1h",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "f9a6ab7b-67a3-4778-ae5b-9101498f93f4",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        560
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a88cc5d3-df2e-4161-a98e-c85d42d4ef9c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        940,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "y0AJhOYgMZwDjwTx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1a7180d1-acc2-4b07-86a4-74f96970da1c",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        600
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "y0AJhOYgMZwDjwTx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a real estate data analyst specializing in market trends and investment opportunities. Based on the following daily real estate market data, analyze the provided property data and provide a detailed report covering the following aspects:\n\n1. **Market Trends**:\n   - Calculate the average price, price per square foot, and property size across the dataset.\n   - Identify any trends in property types (e.g., single-family, condo) and their average prices.\n   - Highlight neighborhoods with higher or lower property prices based on the addresses.\n\n2. **Investment Insights**:\n   - Identify properties with lower-than-average price per square foot compared to the dataset.\n   - Highlight properties with large square footage that are priced below the median price.\n   - Suggest whether this is a buyer’s or seller’s market based on pricing and property type trends.\n\n3. **Timing and Market Conditions**:\n   - Based on the sale dates, determine if sales activity has increased or decreased recently.\n   - Analyze if properties are selling faster (e.g., small condos vs. larger family homes).\n   - Provide a recommendation on whether now is a good time to buy or wait based on the trends.\n\n4. **Specific Suggestions**:\n   - For investors, recommend properties that could have the best return on investment (ROI) based on low price per square foot, desirable location, and realtor/agency credibility.\n   - For buyers, suggest whether to focus on certain neighborhoods, property types, or price ranges.\n\n5. **Summary Recommendations**:\n   - Provide actionable advice for buyers and investors, considering current market conditions and trends in the data.\n\nUse clear and concise language, and back up your insights with specific numbers and examples from the dataset.\n\nIf needed, use the SerpAPI tool to fetch live data about neighborhoods, property trends, or market conditions to enhance your analysis.\n\nThe property data is provided below as a JSON object:\n{{ JSON.stringify($json.output.results) }}\n",
+        "options": {
+          "systemMessage": "=You are a real estate data analyst. Provide detailed insights and actionable recommendations based on the given property data."
+        }
+      },
+      "id": "9e7d13e6-e142-4361-957a-58b44396e15f",
+      "name": "Real Estate AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1260,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Based on the following weekly real estate market analysis, draft a professional email summarizing this week's real estate analysis. \n\n   - Include:\n     - **Subject Line**: A clear, concise summary (e.g., \"This week's Real Estate Market Insights: Key Trends and Recommendations\").\n     - **Introduction**: A formal opening addressing the team (e.g., \"Dear Team, here are this week's real estate market highlights.\").\n     - **Key Highlights**:\n       - Market Trends: Summarize average prices, price per square foot, property types, and neighborhood trends.\n       - Investment Opportunities: Highlight properties with high ROI potential or competitive pricing.\n       - Timing and Market Insights: Include any relevant recommendations for timing or market conditions.\n     - **Closing Statement**: Conclude with a professional call to action (e.g., \"Let us know if you have questions or require additional details.\").\n   - Use headers and bullet points for easy readability.\n\n\nThe real estate market analysis for this week is as follows:\n{{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31a0b510-f821-4e1c-a587-3f37c3856749",
+      "name": "Gmail Summary",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1680,
+        400
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "y0AJhOYgMZwDjwTx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Based on the following weekly real estate market analysis, draft a concise and engaging summary for the internal Slack channel.\n\n\n Format:\n     - **Header**: Use an engaging title with emojis (e.g., \"🏡 *Weekly Real Estate Highlights*\").\n     - **Key Takeaways**:\n       - 📊 Average Price: $X\n       - 💰 Price per Square Foot: $Y\n       - 🏠 Top Areas: [Neighborhoods]\n       - 💡 Investment Opportunities: \"[Address], [Address]\"\n     - **Actionable Recommendations**:\n       - Provide quick advice (e.g., \"👉 Focus on [property/area] for the best ROI\").\n     - **Closing**: End with a casual call to action (e.g., \"💬 Share your thoughts in the thread!\").\n\nThe real estate market analysis for this week is as follows:\n{{ $json.output }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4ba48c7f-8e8a-4960-8a6f-d567fee62201",
+      "name": "Slack Summary Team",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1680,
+        580
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "y0AJhOYgMZwDjwTx",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Jina Fetch": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Real Estate AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Jina Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Real Estate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Real Estate AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Real Estate AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Real Estate AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Real Estate AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail Summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Summary Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Summary": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Summary Team": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "abfbe2f3-ef3c-4016-9e3c-febb2bf9d663",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae56acec072bc16273543d89bb011ed9ab6cf3dacd823d15e41231870330f72a"
+  },
+  "id": "T3VreesIBj0XXIk7",
+  "tags": []
+}

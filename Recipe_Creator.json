@@ -1,0 +1,248 @@
+{
+  "name": "03 - Recipe Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -20
+      ],
+      "id": "49a87689-e25e-4970-8487-ee1bf46440d2",
+      "name": "When chat message received",
+      "webhookId": "91eaa798-8328-4f86-a3f4-a41e79701432"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "<AgentInstructions>\n    <Role>\n        <name>RecipeGeneratorAgent</name>\n        <description>A helpful cooking assistant that generates custom recipes.</description>\n    </Role>\n\n    <Goal>\n        <Primary>Provide a complete recipe including ingredients and step-by-step instructions based on the user’s requested dish and serving size.</Primary>\n    </Goal>\n\n    <Instructions>\n        <Instruction>Once you receive the user’s dish name and serving size, note them down carefully.</Instruction>\n        <Instruction>Generate a list of ingredients with accurate quantities tailored to the specified serving size.</Instruction>\n        <Instruction>Provide clear, step-by-step instructions on how to prepare the dish.</Instruction>\n        <Instruction>Where applicable, include cooking times, tips, or variations to enhance the recipe.</Instruction>\n    </Instructions>\n    \n    <Examples>\n        <Example>\n            <UserInput>\n                Creamy pasta with butter and garlic for 8 people\n            </UserInput>\n            <AgentOutput>\n                {\n                  \"recipeName\": \"Creamy Butter Garlic Pasta\",\n                  \"servings\": 8,\n                  \"ingredients\": [\n                    \"2 lb (approx. 900 g) pasta of your choice\",\n                    \"1 cup (2 sticks) unsalted butter\",\n                    \"8 cloves garlic, minced\",\n                    \"2 cups heavy cream (or half-and-half)\",\n                    \"Salt and pepper to taste\",\n                    \"Optional: Fresh parsley or grated Parmesan cheese for garnish\"\n                  ],\n                  \"instructions\": [\n                    \"**1. Cook the Pasta:** Bring a large pot of salted water to a rolling boil, then add the pasta. Cook according to package instructions. Reserve 1 cup of pasta water before draining.\",\n                    \"**2. Sauté Garlic:** In a large pan, melt the butter over medium heat. Add minced garlic and cook for 1–2 minutes, stirring frequently to prevent burning.\",\n                    \"**3. Add Cream:** Lower the heat and slowly pour in the heavy cream, stirring continuously. Season with salt and pepper.\",\n                    \"**4. Thicken the Sauce:** Let the sauce simmer for 3–4 minutes, stirring occasionally. If it thickens too much, stir in small amounts of the reserved pasta water.\",\n                    \"**5. Combine & Serve:** Add the drained pasta to the pan, tossing gently to coat with sauce. Taste and adjust seasonings as needed. Top with parsley or Parmesan before serving.\"\n                  ],\n                  \"combinedIngredients\": \"2 lb (approx. 900 g) pasta of your choice\\n1 cup (2 sticks) unsalted butter\\n8 cloves garlic, minced\\n2 cups heavy cream (or half-and-half)\\nSalt and pepper to taste\\nOptional: Fresh parsley or grated Parmesan cheese for garnish\",\n                  \"combinedInstructions\": \"**1. Cook the Pasta:** Bring a large pot of salted water to a rolling boil, then add the pasta. Cook according to package instructions. Reserve 1 cup of pasta water before draining.\\n**2. Sauté Garlic:** In a large pan, melt the butter over medium heat. Add minced garlic and cook for 1–2 minutes, stirring frequently to prevent burning.\\n**3. Add Cream:** Lower the heat and slowly pour in the heavy cream, stirring continuously. Season with salt and pepper.\\n**4. Thicken the Sauce:** Let the sauce simmer for 3–4 minutes, stirring occasionally. If it thickens too much, stir in small amounts of the reserved pasta water.\\n**5. Combine & Serve:** Add the drained pasta to the pan, tossing gently to coat with sauce. Taste and adjust seasonings as needed. Top with parsley or Parmesan before serving.\"\n                }\n            </AgentOutput>\n        </Example>\n\n        <Example>\n            <UserInput>\n                Chocolate chip cookies for 6 people\n            </UserInput>\n            <AgentOutput>\n                {\n                  \"recipeName\": \"Chocolate Chip Cookies\",\n                  \"servings\": 6,\n                  \"ingredients\": [\n                    \"1/2 cup (1 stick) softened butter\",\n                    \"1/4 cup granulated sugar\",\n                    \"1/4 cup brown sugar\",\n                    \"1 large egg\",\n                    \"1 teaspoon vanilla extract\",\n                    \"1 cup all-purpose flour\",\n                    \"1/2 teaspoon baking soda\",\n                    \"1/4 teaspoon salt\",\n                    \"1/2 cup chocolate chips (any variety)\"\n                  ],\n                  \"instructions\": [\n                    \"**1. Cream Butter & Sugars:** In a large bowl, beat softened butter with granulated and brown sugars until smooth.\",\n                    \"**2. Add Wet Ingredients:** Beat in the egg and vanilla extract, scraping down the sides as needed.\",\n                    \"**3. Combine Dry Ingredients:** In a separate bowl, whisk together flour, baking soda, and salt. Gradually mix into the butter-sugar mixture.\",\n                    \"**4. Stir in Chocolate Chips:** Fold in the chocolate chips until evenly distributed.\",\n                    \"**5. Shape & Bake:** Roll tablespoon-sized balls of dough onto a parchment-lined baking sheet. Bake in a preheated 350°F (175°C) oven for 10–12 minutes, or until edges are golden.\",\n                    \"**6. Cool & Enjoy:** Let the cookies rest on the baking sheet for 2 minutes, then transfer them to a wire rack to cool completely.\"\n                  ],\n                  \"combinedIngredients\": \"1/2 cup (1 stick) softened butter\\n1/4 cup granulated sugar\\n1/4 cup brown sugar\\n1 large egg\\n1 teaspoon vanilla extract\\n1 cup all-purpose flour\\n1/2 teaspoon baking soda\\n1/4 teaspoon salt\\n1/2 cup chocolate chips (any variety)\",\n                  \"combinedInstructions\": \"**1. Cream Butter & Sugars:** In a large bowl, beat softened butter with granulated and brown sugars until smooth.\\n**2. Add Wet Ingredients:** Beat in the egg and vanilla extract, scraping down the sides as needed.\\n**3. Combine Dry Ingredients:** In a separate bowl, whisk together flour, baking soda, and salt. Gradually mix into the butter-sugar mixture.\\n**4. Stir in Chocolate Chips:** Fold in the chocolate chips until evenly distributed.\\n**5. Shape & Bake:** Roll tablespoon-sized balls of dough onto a parchment-lined baking sheet. Bake in a preheated 350°F (175°C) oven for 10–12 minutes, or until edges are golden.\\n**6. Cool & Enjoy:** Let the cookies rest on the baking sheet for 2 minutes, then transfer them to a wire rack to cool completely.\"\n                }\n            </AgentOutput>\n        </Example>\n    </Examples>\n</AgentInstructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -80,
+        -20
+      ],
+      "id": "6294705f-9e72-4a87-8a2a-917d10307f6b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        260
+      ],
+      "id": "bd5f7260-280f-4232-9726-24e09c1ce2f8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8c3KOYMMU6HyiXAp",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C06MGRV855F",
+          "mode": "list",
+          "cachedResultName": "general"
+        },
+        "text": "=Hey Drake, BUY THIS STUFF:\n{{ $json.output.combinedIngredients }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        420,
+        140
+      ],
+      "id": "91724acc-265f-4515-ac45-1bd58fc6fee6",
+      "name": "Slack",
+      "webhookId": "13f5e318-bf46-4492-9380-09d17bbd641d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "3OSU4E6RRj2wDFbk",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app88Mi65yEdtCpvH",
+          "mode": "list",
+          "cachedResultName": "Recipe Dashboard",
+          "cachedResultUrl": "https://airtable.com/app88Mi65yEdtCpvH"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4n8JYjvbpSeCB7",
+          "mode": "list",
+          "cachedResultName": "Recipe Guides",
+          "cachedResultUrl": "https://airtable.com/app88Mi65yEdtCpvH/tbl4n8JYjvbpSeCB7"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Recipe Name": "={{ $json.output.recipeName }}",
+            "Instructions": "={{ $json.output.combinedInstructions }}",
+            "Ingredients": "={{ $json.output.combinedInstructions }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Recipe Name",
+              "displayName": "Recipe Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Instructions",
+              "displayName": "Instructions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ingredients",
+              "displayName": "Ingredients",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        420,
+        -160
+      ],
+      "id": "61b991f7-c084-4ea5-bdb3-e7472e773808",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vlcXwjq79dIuk2w2",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n                  \"recipeName\": \"Creamy Butter Garlic Pasta\",\n                  \"servings\": 8,\n                  \"ingredients\": [\n                    \"2 lb (approx. 900 g) pasta of your choice\",\n                    \"1 cup (2 sticks) unsalted butter\",\n                    \"8 cloves garlic, minced\",\n                    \"2 cups heavy cream (or half-and-half)\",\n                    \"Salt and pepper to taste\",\n                    \"Optional: Fresh parsley or grated Parmesan cheese for garnish\"\n                  ],\n                  \"instructions\": [\n                    \"**1. Cook the Pasta:** Bring a large pot of salted water to a rolling boil, then add the pasta. Cook according to package instructions. Reserve 1 cup of pasta water before draining.\",\n                    \"**2. Sauté Garlic:** In a large pan, melt the butter over medium heat. Add minced garlic and cook for 1–2 minutes, stirring frequently to prevent burning.\",\n                    \"**3. Add Cream:** Lower the heat and slowly pour in the heavy cream, stirring continuously. Season with salt and pepper.\",\n                    \"**4. Thicken the Sauce:** Let the sauce simmer for 3–4 minutes, stirring occasionally. If it thickens too much, stir in small amounts of the reserved pasta water.\",\n                    \"**5. Combine & Serve:** Add the drained pasta to the pan, tossing gently to coat with sauce. Taste and adjust seasonings as needed. Top with parsley or Parmesan before serving.\"\n                  ],\n                  \"combinedIngredients\": \"2 lb (approx. 900 g) pasta of your choice\\n1 cup (2 sticks) unsalted butter\\n8 cloves garlic, minced\\n2 cups heavy cream (or half-and-half)\\nSalt and pepper to taste\\nOptional: Fresh parsley or grated Parmesan cheese for garnish\",\n                  \"combinedInstructions\": \"**1. Cook the Pasta:** Bring a large pot of salted water to a rolling boil, then add the pasta. Cook according to package instructions. Reserve 1 cup of pasta water before draining.\\n**2. Sauté Garlic:** In a large pan, melt the butter over medium heat. Add minced garlic and cook for 1–2 minutes, stirring frequently to prevent burning.\\n**3. Add Cream:** Lower the heat and slowly pour in the heavy cream, stirring continuously. Season with salt and pepper.\\n**4. Thicken the Sauce:** Let the sauce simmer for 3–4 minutes, stirring occasionally. If it thickens too much, stir in small amounts of the reserved pasta water.\\n**5. Combine & Serve:** Add the drained pasta to the pan, tossing gently to coat with sauce. Taste and adjust seasonings as needed. Top with parsley or Parmesan before serving.\"\n                }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        260
+      ],
+      "id": "60b80b09-7f96-4619-b969-193203e9b7ce",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "96a180cd-c441-49a0-809d-f3fd36888c25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "19954721cad48ea56aa7928cde145d83fde57fd99df7821bc6e32e387cfc0338"
+  },
+  "id": "XTXOdSnqajw4n9Nt",
+  "tags": []
+}

@@ -1,0 +1,373 @@
+{
+  "name": "Social Media Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "person": "9S5IiEYl5P",
+        "text": "={{ $json.message.content.LinkedIn.post }}",
+        "additionalFields": {}
+      },
+      "id": "357a822d-2eb6-43b3-aa82-ec232fc0e465",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        200
+      ],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "pOPAhN6UgLaSl8Ck",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "directMessage",
+        "user": {
+          "__rl": true,
+          "value": "11212333",
+          "mode": "id"
+        },
+        "text": "={{ $json.message.content.Twitter.post }}",
+        "additionalFields": {}
+      },
+      "id": "785e7907-7c1c-42a6-aad9-fb6dbb1ce05d",
+      "name": "X1",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        700
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "hi",
+        "message": "=",
+        "options": {}
+      },
+      "id": "50b94856-594a-4787-a5f8-aa5e73170c62",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1780,
+        1020
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TFQDvjUrgdE1DdVx",
+          "name": "Gmail account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "title": "New AI",
+        "contentFormat": "html",
+        "content": "={{ $json.message.content.LinkedIn.post }}",
+        "additionalFields": {}
+      },
+      "id": "de846b5d-36b5-4452-83e7-22b0efb9312d",
+      "name": "Medium",
+      "type": "n8n-nodes-base.medium",
+      "typeVersion": 1,
+      "position": [
+        1880,
+        340
+      ],
+      "credentials": {
+        "mediumApi": {
+          "id": "vRsz9sSz7UIfaeDf",
+          "name": "Medium account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "otherOptions": {}
+      },
+      "id": "da45b7ee-ecc9-4fb4-9a66-50f7d8225080",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1880,
+        860
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "dc3ac04f-af3e-438f-ab39-340299dde7ed",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        960
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "RZoEIEe7Fr3xnEdO",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize the following article to be send via email\n\nArticle: {{ $json.choices[0].message.content }}",
+        "options": {}
+      },
+      "id": "78398c2b-7e5a-4e31-96d3-8085a768251e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        1220,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-sonar-small-128k-online\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Summarize the following article in detail\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Article:  {{ $json['Media Post Links '] }}\"\n    }  \n  ],\n\n  \"max_tokens\": 500,\n  \"temperature\": 0.2,\n  \"top_p\": 0.9,\n  \"return_citations\": true,\n  \"search_domain_filter\": [\n    \"perplexity.ai\"\n  ],\n  \"return_images\": false,\n  \"return_related_questions\": false,\n  \"search_recency_filter\": \"month\",\n  \"top_k\": 0,\n  \"stream\": false,\n  \"presence_penalty\": 0,\n  \"frequency_penalty\": 1\n}",
+        "options": {}
+      },
+      "id": "9fbacec5-8b18-41f3-bf38-7df5055c6345",
+      "name": "Perplexity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Based on the following article summary, create tailored social media posts for LinkedIn, Instagram, Twitter (X), and Facebook:\n\n- LinkedIn: A professional post highlighting the key insights with a formal tone.\n- Instagram: A short, engaging post with a call to action and relevant hashtags.\n- Twitter (X): A concise post under 280 characters with a few relevant hashtags.\n- Facebook: A conversational post with more detail and a link to the article.\n\nArticle Summary:\n{{$json[\"choices\"][0][\"message\"][\"content\"]}}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "e6461b32-66dd-458e-b617-6ce63bd9905a",
+      "name": "Social Media Post",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        1220,
+        580
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "y0AJhOYgMZwDjwTx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1N77n0wYkWx0gGKxW8qWIXYqjH8wRvE1gEd1aOSALJ4c",
+          "mode": "list",
+          "cachedResultName": "Media Links",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N77n0wYkWx0gGKxW8qWIXYqjH8wRvE1gEd1aOSALJ4c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N77n0wYkWx0gGKxW8qWIXYqjH8wRvE1gEd1aOSALJ4c/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "222d168e-4c3b-4392-bab7-f6bd33b9b765",
+      "name": "Media Links",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        520,
+        580
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "YEOmkRWtTPYLyMqx",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all the input items (articles)\nconst articles = $input.all();\n\n// Get the most recent article (assuming it's the last one in the array)\nconst latestArticle = articles[articles.length - 1];\n\n// Return the most recent article as the output for the next node\nreturn [latestArticle];"
+      },
+      "id": "b4f6f87b-78a4-4b30-aa7c-856990142229",
+      "name": "Latest Media",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5fa33a4e-d65b-4cfe-a10d-bbed1c6c5855",
+      "name": "Facebook",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1960,
+        520
+      ],
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity": {
+      "main": [
+        [
+          {
+            "node": "Social Media Post",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Social Media Post": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "X1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Medium",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Media Links": {
+      "main": [
+        [
+          {
+            "node": "Latest Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Latest Media": {
+      "main": [
+        [
+          {
+            "node": "Perplexity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1514a9f5-d6cc-4f76-9718-e983bf2e7eb8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae56acec072bc16273543d89bb011ed9ab6cf3dacd823d15e41231870330f72a"
+  },
+  "id": "iKenBySMCZBurIau",
+  "tags": []
+}
