@@ -1,0 +1,517 @@
+{
+  "name": "Resume_Parsing_and_Scoring",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "userQuery"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -680,
+        0
+      ],
+      "id": "fdb43ec9-363f-4eec-acf3-578feb60c194",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "includeSpamTrash": true,
+          "q": "has:attachment",
+          "readStatus": "unread"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "547fa784-aaed-485b-a01e-2d5fb6d6c3c0",
+      "name": "Gmail",
+      "webhookId": "8e9701c9-8a4a-4ce7-ac68-fea8d3d1a065",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        80,
+        0
+      ],
+      "id": "190c68b7-8234-49a2-8b05-485e41ea3e7d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this resume and assess how well the candidate fits the role.\n\n{{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert recruiter evaluating candidates for various job roles based on resume analysis.\n\nThe user query describing the job role is:\n{{ $('When Executed by Another Workflow').item.json.userQuery }}\n\nFirst, extract the job role title from this query and use it in the evaluation.\n\nThen, assess the candidate's suitability for this role based on the resume\n\nReturn only a JSON object with the following format:\n\n```json\n{\n  \"role\": \"<extracted role title from the query>\",\n  \"total_score\": <a number between 1 and 10 without quotes>,\n  \"summary\": \"<a short paragraph explaining strengths, weaknesses, and your final verdict on the candidate’s fit for the role>\"\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "14f0a844-2386-453e-a938-5741b8575c01",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        200
+      ],
+      "id": "c017624a-028c-45eb-88f0-63a6df74130f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "d2QnYDakr4QNj9Lt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"role\": \"<extracted role title from the query>\",\n  \"total_score\": 8.3,\n  \"summary\": \"The candidate has solid backend experience with Node.js and PostgreSQL, along with relevant project work that matches the role. While frontend skills are decent, they could improve React expertise. Overall, they are a strong fit for the position.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        200
+      ],
+      "id": "5692ab0a-8678-403c-832c-d0516b0115c7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8355c5f0-1463-4ea2-8d9f-e1c948188669",
+              "leftValue": "={{ $json.output.total_score }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -40
+      ],
+      "id": "c6593389-13bf-4290-a844-76d875a58b55",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail').item.json.from.value[0].address }}",
+        "subject": "=Update on Your Application for {{ $json.output.role }} Role at AutomateA2Z ",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; color: #333333; background-color: #f9f9f9; padding: 20px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);\">\n      <tr>\n        <td style=\"padding: 20px;\">\n          <h2 style=\"color: #444444;\">Hello {{ $('Gmail').item.json.from.value[0].name }},</h2>\n\n\n          <p>We truly appreciate the time and effort you invested in your application. After a thorough review of your resume, we regret to inform you that we will not be proceeding with your application at this stage.</p>\n\n          <p>This was a difficult decision due to the number of strong applications we received. While you were not selected for this role, we will keep your profile on file and may reach out if a more suitable opportunity arises in the future.</p>\n\n          <p>We wish you all the best in your career journey and sincerely thank you again for your interest in joining our team.</p>\n\n          <p>Warm regards,<br>\n          <strong>Sai Siva</strong><br>\n          Recruiter<br>\n          AutomateA2Z</p>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1160,
+        100
+      ],
+      "id": "c9a443c7-8f88-463d-93c2-f03cdfa626a3",
+      "name": "Gmail1",
+      "webhookId": "19341298-6f6a-4d1c-8900-8c4f53d148d4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Gmail').item.json.from.value[0].name }}",
+            "email": "={{ $('Gmail').item.json.from.value[0].address }}",
+            "Status": "Shortlisted",
+            "summary": "=Resume Score : {{ $json.output.total_score }}\n\n{{ $('AI Agent').item.json.output.summary }}",
+            "role": "={{ $json.output.role }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Shortlisted",
+                  "value": "Shortlisted"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Selected"
+                },
+                {
+                  "name": "Scheduled",
+                  "value": "Scheduled"
+                },
+                {
+                  "name": "Rejected",
+                  "value": "Rejected"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1140,
+        -160
+      ],
+      "id": "f592dee7-df9b-439a-9593-559dd5102f52",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Gmail').item.json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        -160
+      ],
+      "id": "25d62a2a-ed50-47a1-82a2-05ea54fd8074",
+      "name": "Gmail2",
+      "webhookId": "d22db861-d59e-44e8-9aa6-05cbafba67a9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Gmail').item.json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1380,
+        100
+      ],
+      "id": "5f7e2ec8-9f3e-4b82-9b14-951a0d57df04",
+      "name": "Gmail3",
+      "webhookId": "c1eb5f3e-1e7c-4bc9-adf9-ff2eb7314584",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "83ee4c69-5fd4-4151-bb6e-a9bb9125df55",
+              "leftValue": "={{$binary.attachment_0.mimeType}}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "3e312965-9df8-4efd-90bc-a9edc7e91b71",
+      "name": "If1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "userQuery": "analyze the resumes for AI Agent Devloper role"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Gmail2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "main": [
+        [
+          {
+            "node": "Gmail3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7bb2bbb6-d269-4c7c-ba41-9d7d1996b5af",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "OgrhPp9YDfuWIvWa",
+  "tags": []
+}

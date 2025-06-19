@@ -1,0 +1,244 @@
+{
+  "name": "Candidate_Information",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "userQuery"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        -80
+      ],
+      "id": "d80b8fe1-12f6-45b3-8690-b05bf281f17a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.userQuery }}",
+        "options": {
+          "systemMessage": "You are a smart AI assistant integrated with n8n and connected to Airtable. Your task is to understand the user's query and retrieve accurate candidate information from one or more Airtable tables.\n\n📁 Airtable Tables Connected:\n1. Current Hiring Candidates – Ongoing hiring process.\n2. Selected Candidates – All selected candidates across roles.\n3. Rejected Candidates – Rejected or on-hold candidates for future use.\n\n🔍 Query Handling Logic:\n\n1. If the query is about a specific person (e.g., “Tell me about Sai Siva Manikanta”):\n   - First search the Current Hiring Candidates table.\n   - If not found, search the Selected Candidates table.\n   - If still not found, search the Rejected Candidates table.\n   - Once found, return the candidate details and their status (Current Hiring / Selected / Rejected).\n\n   ⚠ If multiple people share the same name:\n   - Ask the user to provide their email to find the exact match.\n   - Or return a list of matching names with roles and emails.\n\n2. If the query is about a group:\n   - For “selected candidates” → Search only the Selected Candidates table.\n   - For “rejected candidates” → Search only the Rejected Candidates table.\n   - Return names, emails, and roles.\n\n3. If the query is ambiguous:\n   - Try to infer if it’s about a person or group.\n   - If unclear, ask a clarifying question to continue.\n\n💬 Always respond clearly with just the relevant results.\n\n📌 If no match is found:\n  → Respond: “No matching candidate was found. Please check the name or provide an email for more accurate results.”\n\n🔑 Key fields to use:\n- Name\n- Email\n- Role\n- Status\n- No. of Followups (if needed)\n\n🧠 Name Disambiguation Rules (NEW ADDITION):\n\n- When a user query contains a partial or common name:\n   - Perform a fuzzy match across the table.\n   - If two or more matching names are found:\n     → DO NOT assume.\n     → Ask the user: \n       “Multiple candidates match that name. Could you please specify the full name or share the candidate’s email for accurate results?”\n     → Alternatively, show a list:\n       “Found multiple candidates with similar names. Please choose from the following:\n         - Sai Siva Manikanta – Full Stack Developer – saisiva938141@gmail.com\n         - Sai Siva Manikanta Madem – AI Agent Developer – saisiva938141@gmail.com”\n\n- Always apply this rule **before** deciding on a match, even if emails are the same (since same email may be used across roles or rounds).\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        -80
+      ],
+      "id": "d0826e8c-8b4f-4772-b3c0-92d44c82cb63",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -340,
+        120
+      ],
+      "id": "bd86d215-76ee-4891-89fc-a749b2c48447",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "d2QnYDakr4QNj9Lt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWOchHhuudgKPff",
+          "mode": "list",
+          "cachedResultName": "Selected_Candidates",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblWOchHhuudgKPff"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        120,
+        140
+      ],
+      "id": "58dd6992-76a2-4aef-b8e1-d08afd085fcc",
+      "name": "Selected Candidates",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh7rikxkFjLMNFZ",
+          "mode": "list",
+          "cachedResultName": "rejected_candidates=future_use",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh7rikxkFjLMNFZ"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        300,
+        120
+      ],
+      "id": "2d1a307e-0492-4234-a289-1f2cadd13fab",
+      "name": "Rejected Candidates",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        -60,
+        140
+      ],
+      "id": "97ebfcef-f122-4f4e-bbc7-34bd0cd4656b",
+      "name": "Current Hiring Candidates",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "userQuery": "what is the status of sai siva"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selected Candidates": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rejected Candidates": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current Hiring Candidates": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d4a0ca57-0939-48c7-9ed5-e8d85a5f839d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "E9H6hBUHOcqAXBTI",
+  "tags": []
+}

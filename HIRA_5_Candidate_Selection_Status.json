@@ -1,0 +1,558 @@
+{
+  "name": "Candidate_Selection_Status",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "userQuery"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -360,
+        -60
+      ],
+      "id": "56b22aa2-9a85-4402-99d4-11f2a4ca515d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.userQuery }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI assistant connected to a single Airtable search tool that retrieves all candidate records from a table.\n\nYour goal is to:\n- Identify the candidate based on a name mentioned in the user query\n- Interpret whether the candidate is \"Selected\" or \"Rejected\" based on the user’s wording\n- If the match is unambiguous, return both the email and interpreted status in a strict JSON format\n\nInstructions:\n\n1. **Extract the Candidate Name:**\n   - Parse the name mentioned in the user’s query.\n   - Use case-insensitive partial matching against the `name` field in Airtable.\n   - If the provided name matches only one record (even if partially, like \"Sai Siva Manikanta\" for \"Sai Siva Manikanta Madem\"), treat it as a valid match and use the full record.\n\n2. **Interpret Status from the Query:**\n   - If the query includes any of the following (case-insensitive):\n     - Words like `selected`, `hired`, `shortlisted`, `chosen`, interpret status as `\"Selected\"`\n     - Words like `rejected`, `not selected`, `not hired`, `rejected`, `declined`, interpret status as `\"Rejected\"`\n   - Output status with **only the first letter capitalized**: `\"Selected\"` or `\"Rejected\"`\n   - If no clear status can be interpreted, respond:\n     `\"Please specify the candidate's status clearly (e.g., selected or rejected).\"`\n\n3. **Search and Match Rules:**\n   - Use the Airtable search tool to fetch all records.\n   - Use case-insensitive substring match on the `name` field.\n   - If only **one** record matches (e.g., “Sai Siva Manikanta” matches “Sai Siva Manikanta Madem”), accept it.\n   - If multiple records match the query (e.g., “Rohit” matches multiple names), respond:\n     `\"Multiple candidates match this name. Please provide the full name or include the email address for clarification.\"`\n   - If no matches are found, respond:\n     `\"No matching record found for <candidate name>.\"`\n\n4. **Final Output Format:**\n   - If one unambiguous match is found and status is correctly interpreted, return a JSON like:\n     {\n       \"email\": \"matched_email@example.com\",\n       \"status\": \"Selected\"\n     }\n\n   - If ambiguity or invalid input is detected, return only the corresponding plain message (no JSON).\n\n5. **Do not assume or fabricate any details. Use only what's in the records and query.**\n\n---\n\n### ✅ Examples:\n\n**Query:**  \n`\"Update Sai Siva Manikanta as hired\"`  \n→ Matches only one record: \"Sai Siva Manikanta Madem\"  \n→ Interpretation: hired → `\"Selected\"`  \n→ ✅ Output:  \n```json\n{\n  \"email\": \"saisiva@example.com\",\n  \"status\": \"Selected\"\n}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -140
+      ],
+      "id": "3570ee03-902a-46f4-bceb-c165df05c1ab",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -120,
+        100
+      ],
+      "id": "9c952cec-bec6-41f3-ba0a-8fe3e86da788",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "d2QnYDakr4QNj9Lt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "filterByFormula": "{Status} = \"Scheduled\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        40,
+        120
+      ],
+      "id": "f5222591-d977-47ee-ad5d-031ecfb6765b",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email\": \"saisiva@example.com\",\n  \"status\": \"Selected\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        340,
+        120
+      ],
+      "id": "e490a934-1d5f-408e-82c7-e13b5f9ce32c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "filterByFormula": "={email} = \"{{ $json.output.email }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        380,
+        -100
+      ],
+      "id": "c2d2e001-0121-4d3f-9eda-b42ae5d0cbeb",
+      "name": "Airtable1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('AI Agent').item.json.output.email }}",
+            "Name": "={{ $json.Name }}",
+            "summary": "={{ $json.summary }}",
+            "role": "={{ $json.role }}",
+            "Status": "={{ $('AI Agent').item.json.output.status }}",
+            "id": "={{ $json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Shortlisted",
+                  "value": "Shortlisted"
+                },
+                {
+                  "name": "Selected",
+                  "value": "Selected"
+                },
+                {
+                  "name": "Scheduled",
+                  "value": "Scheduled"
+                },
+                {
+                  "name": "Rejected",
+                  "value": "Rejected"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        740,
+        -80
+      ],
+      "id": "b371bb73-116d-4328-a588-80f3800b6ef6",
+      "name": "Airtable2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "75701fcc-5442-451e-a7e4-91e79825b48f",
+              "leftValue": "={{ $('AI Agent').item.json.output.status }}",
+              "rightValue": "Selected",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        980,
+        -60
+      ],
+      "id": "768e9da7-040d-4404-bc35-355192f1b9b3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('AI Agent').item.json.output.email }}",
+        "subject": "=Congratulations! You’ve Been Selected at AutomateA2Z",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; color: #333;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);\">\n      <tr>\n        <td>\n          <h2 style=\"color: #2e7d32;\">🎉 Congratulations {{ $json.fields.Name }}!</h2>\n\n          <p>We are thrilled to inform you that you have successfully cleared all rounds of the selection process for the <strong>{{ $json.fields.role }}</strong> role at <strong>AutomateA2Z</strong>.</p>\n\n          <p>Your dedication, skills, and professionalism truly impressed our team, and we are excited to welcome you onboard.</p>\n\n          <p>Thank you for the time and effort you invested throughout the interview process. We are proud to have you join us and look forward to seeing the great things we’ll accomplish together.</p>\n\n          <p>We request you to visit our company in person for the onboarding process. For more details, please visit our website at <a href=\"http://www.automatea2z.in\" target=\"_blank\">www.automatea2z.in</a>.</p>\n\n          <p>Once again, congratulations and welcome to the AutomateA2Z family!</p>\n\n          <p>With warm regards,<br>\n          <strong>Sai Siva</strong><br>\n          Recruiter<br>\n          AutomateA2Z</p>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        -180
+      ],
+      "id": "c3d0ec70-d2d6-4797-b84b-ee7475dde626",
+      "name": "Gmail",
+      "webhookId": "a7f64e29-6abd-4502-b940-89b2ef7393d7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWOchHhuudgKPff",
+          "mode": "list",
+          "cachedResultName": "Selected_Candidates",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblWOchHhuudgKPff"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Airtable2').item.json.fields.Name }}",
+            "email": "={{ $('Airtable2').item.json.fields.email }}",
+            "role": "={{ $('Airtable2').item.json.fields.role }}",
+            "summary": "={{ $('Airtable2').item.json.fields.summary }}",
+            "No.of Followups": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "No.of Followups",
+              "displayName": "No.of Followups",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        -200
+      ],
+      "id": "44e845ea-b64e-4ea6-86e8-2185a7a018a8",
+      "name": "Airtable3",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Airtable1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable1": {
+      "main": [
+        [
+          {
+            "node": "Airtable2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Airtable3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ddfb7f4a-405a-4c31-a531-7300f3a55d4f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "EKEZhHckCk1Qte8X",
+  "tags": []
+}

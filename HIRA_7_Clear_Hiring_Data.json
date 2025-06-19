@@ -1,0 +1,315 @@
+{
+  "name": "Clear_Hiring_Data",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -280,
+        -40
+      ],
+      "id": "5fb3b795-bf8a-483c-b0ee-05fbcddc9671",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "filterByFormula": "NOT({Status} = \"Selected\")",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -40
+      ],
+      "id": "b3ebc996-c0b3-4508-9f59-57419f4010ea",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Update on Your Application !!- AutomateA2Z",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);\">\n      <tr>\n        <td>\n          <h2 style=\"color: #d32f2f;\">Dear {{ $json.Name }},</h2>\n\n          <p>Thank you very much for your interest in the <strong>{{ $json.role }}</strong> position at <strong>AutomateA2Z</strong> and for the time you invested in the interview process.</p>\n\n          <p>After careful consideration, we regret to inform you that we will not be moving forward with your application. This was not an easy decision for us, as we were impressed by your background and skills.</p>\n\n          <p>At this time, we are closing the current round of hiring. However, we truly appreciate your effort and encourage you to stay connected with us. New opportunities arise frequently, and we would be happy to consider your profile again in the future.</p>\n\n          <p>Please don’t be discouraged. Your interest in AutomateA2Z means a lot to us, and we are confident that with your talent and dedication, you will find a great opportunity very soon.</p>\n\n          <p>We wish you all the best in your career journey and thank you once again for considering us.</p>\n\n          <p>Warm regards,<br>\n          <strong>Sai Siva</strong><br>\n          Recruiter<br>\n          AutomateA2Z</p>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        -40
+      ],
+      "id": "879a7caa-1a3b-4355-a7e5-9cc99fa89c40",
+      "name": "Gmail",
+      "webhookId": "ce847518-7931-4467-ad28-60fb3950aeaf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "filterByFormula": "NOT({email} = \"\")",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        420,
+        -40
+      ],
+      "id": "44abde02-a5bc-4193-ad4e-defd1bd56605",
+      "name": "Airtable1",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRecord",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh5djxUcxg8onOw",
+          "mode": "list",
+          "cachedResultName": "Candidates_info",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh5djxUcxg8onOw"
+        },
+        "id": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        -40
+      ],
+      "id": "e70485a6-0917-40df-9850-a26d2e4887b2",
+      "name": "Airtable2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblh7rikxkFjLMNFZ",
+          "mode": "list",
+          "cachedResultName": "rejected_candidates=future_use",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblh7rikxkFjLMNFZ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Airtable').item.json.Name }}",
+            "email": "={{ $('Airtable').item.json.email }}",
+            "role": "={{ $('Airtable').item.json.role }}",
+            "summary": "={{ $('Airtable').item.json.summary }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        -40
+      ],
+      "id": "46c8cb62-8572-4f19-8420-de44e00023e2",
+      "name": "Airtable3",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "hiring is done"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Airtable3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable1": {
+      "main": [
+        [
+          {
+            "node": "Airtable2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable3": {
+      "main": [
+        [
+          {
+            "node": "Airtable1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f7b37e71-8b0c-457b-9437-eb7efe4b6f61",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "srRM1EZWuGpxyRBs",
+  "tags": []
+}

@@ -1,0 +1,416 @@
+{
+  "name": "HR MASTER Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nI'm your virtual HR assistant. How can I assist you today?\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -780,
+        20
+      ],
+      "id": "570a49a8-2000-479c-b91a-a47af2ac8819",
+      "name": "When chat message received",
+      "webhookId": "e21d350c-92a8-42fa-ad50-6cef23dc7946"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "<agent_instructions>\n  <system_role>\n    You are an AI-powered HR agent. Your only responsibility is to classify user inputs into one of the predefined HR workflows and trigger the corresponding workflow immediately. \n    You should not generate responses or explanations, unless explicitly instructed in the workflow. \n    When triggering a workflow, always pass the user’s full query text as input to the corresponding sub-workflow.\n    If the triggered subworkflow returns an error indicating that the action has already been completed (e.g., emails already sent, interviews already scheduled), respond with:  \n    \"The process has already been completed for all candidates. No one has been left out.\"\n  </system_role>\n\n  <workflows>\n    <workflow name=\"Resume_Parsing_and_Scoring\">\n      <description>\n        Call this workflow when the user wants to analyze, parse, or score candidate resumes. \n        If the user does not mention a specific role (like frontend developer, backend engineer, UI designer, etc.), respond with a message asking them to specify the role for better consistency.\n      </description>\n      <examples>\n        <example>Scan the resumes of the candidates</example>\n        <example>Parse these resumes and give scores</example>\n        <example>Analyze received CVs</example>\n      </examples>\n      <response condition=\"no_explicit_role_or_job_title\">\n        Please mention the role (e.g., Backend Developer, UI Designer) so the resumes can be scanned with consistent criteria.\n      </response>\n    </workflow>\n\n    <workflow name=\"Schedule_Interview\">\n      <description>\n        Call this workflow only when the user wants to schedule interviews or meetings with candidates who have already been shortlisted or scored.\n        If no booking link is provided, respond with a message asking the user to copy the link from Calendly and paste it here.\n      </description>\n      <examples>\n        <example>Schedule meeting with the shortlisted candidates</example>\n        <example>Send invite to full stack developers</example>\n        <example>Book interview slots for top candidates</example>\n      </examples>\n      <response condition=\"no_booking_url\">\n        Please copy your booking link from Calendly and paste it here so it can be included in the interview invites. Please make sure to copy the exact one.\n      </response>\n    </workflow>\n\n    <workflow name=\"Candidate_Selection_Status\">\n      <description>\n        Call this workflow when the user updates the interview or selection status of any candidate.\n      </description>\n      <examples>\n        <example>Siva is selected</example>\n        <example>Sai is rejected</example>\n        <example>Arjun is qualified in the interview</example>\n      </examples>\n    </workflow>\n\n    <workflow name=\"Candidate_Information\">\n      <description>\n        Call this workflow when the user requests specific details about any candidate, including status, contact info, or lists of selected/rejected candidates.\n      </description>\n      <examples>\n        <example>Give me the email of Sai</example>\n        <example>Show the resume of Rahul</example>\n        <example>What is the contact number of Siva?</example>\n        <example>Give the list of selected candidates</example>\n        <example>Show me rejected candidates</example>\n        <example>List the selected frontend developers</example>\n        <example>Who all got rejected in the last round?</example>\n        <example>Send me the selected candidates for UI/UX</example>\n        <example>How many people were selected?</example>\n        <example>Is Priya Sharma selected?</example>\n      </examples>\n    </workflow>\n\n    <workflow name=\"Job_Posting\">\n      <description>\n        Call this workflow only when the user wants to publish or share a new job opening to LinkedIn or any other platform. \n        Do not trigger this workflow if the query is about deleting, closing, or clearing a job post.\n      </description>\n      <examples>\n        <example>Post a job for full stack developers on LinkedIn</example>\n        <example>Publish a job opening for DevOps engineers</example>\n        <example>Share job ad for backend developer roles</example>\n        <example>Post a job on hiring the back end dev</example>\n      </examples>\n    </workflow>\n\n    <workflow name=\"Clear_Hiring_Data\">\n      <description>\n        Call this workflow when the user wants to clear candidate data after the hiring process is complete. This includes deleting records from Airtable and checking unread emails. \n        Also, if the user asks to delete or remove job ads or job postings, assume they are closing the hiring cycle.\n        Note: LinkedIn posts cannot be deleted via automation and also tell the user to delete the scheduled event in Calendly.\n      </description>\n      <examples>\n        <example>Hiring is done</example>\n        <example>Clear the data</example>\n        <example>Remove all candidate records</example>\n        <example>Delete the job posting and archive emails</example>\n        <example>Close the hiring process</example>\n        <example>Archive all resumes, check unread emails, and delete the job ad</example>\n      </examples>\n      <response>\n        The candidate data has been cleared. Please delete the job post manually from your \"LinkedIn\" profile and also \"TURN OFF\" the scheduled event from \"Calendly\", as it cannot be done automatically.\n      </response>\n    </workflow>\n  </workflows>\n\n  <instructions>\n    Always classify the input into only one workflow. If the intent fits more than one workflow, choose the most immediate or primary action.\n    When triggering a workflow, pass the user’s original query as input to the sub-workflow.\n    If any triggered subworkflow returns an error indicating that the action is already complete, respond with:\n    \"The process is Completed\"\n    Do not trigger multiple workflows at once. If the input doesn't match any workflow, return \"Unrecognized\".\n  </instructions>\n</agent_instructions>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -40
+      ],
+      "id": "a0cac8c4-0b61-4642-be4a-e1a9fb390aeb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -500,
+        140
+      ],
+      "id": "321b37a0-b7cf-478b-87db-f4d9614e00f0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "d2QnYDakr4QNj9Lt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        240
+      ],
+      "id": "2fbcdca8-39fc-418d-b341-bbbe7796c718",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user asks to scan, analyze, or score resumes. Typical inputs include “Parse the resumes” or “Give scores for these CVs.” The workflow extracts candidate details and generates relevance scores based on job criteria.",
+        "workflowId": {
+          "__rl": true,
+          "value": "OgrhPp9YDfuWIvWa",
+          "mode": "list",
+          "cachedResultName": "Resume_Parsing_and_Scoring"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        260
+      ],
+      "id": "860987ee-0ba8-4adb-9537-0a522e243ee3",
+      "name": "Resume Parsing and Scoring"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user wants to schedule interviews or meetings with shortlisted candidates. Inputs like “Schedule interviews” or “Send calendar invites” trigger this, and the workflow emails scheduling links or auto-books time slots.",
+        "workflowId": {
+          "__rl": true,
+          "value": "jt58oRZMyKjwGERn",
+          "mode": "list",
+          "cachedResultName": "Schedule_Interview"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        180,
+        280
+      ],
+      "id": "a8099b7f-0d6d-4b47-b2dd-b17e2f01570f",
+      "name": "Schedule Interview"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user provides interview results or updates a candidate's status. Phrases like “Siva is selected” or “Sai is rejected” trigger this, updating records and optionally notifying candidates",
+        "workflowId": {
+          "__rl": true,
+          "value": "EKEZhHckCk1Qte8X",
+          "mode": "list",
+          "cachedResultName": "Candidate_Selection_Status"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        280
+      ],
+      "id": "fb3d574e-36f7-4b48-ba72-5199654aba2c",
+      "name": "Candidate Selection Status Update"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user requests specific information about a candidate. Queries like “Give me Sai’s email” or “Show Arjun’s resume” will trigger this to fetch and display the relevant candidate data.",
+        "workflowId": {
+          "__rl": true,
+          "value": "E9H6hBUHOcqAXBTI",
+          "mode": "list",
+          "cachedResultName": "Candidate_Information"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        280
+      ],
+      "id": "05f08ec8-5500-4ba6-99a9-b7d169e09cdc",
+      "name": "Candidate Information Retrieval"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user wants to post a job opening on platforms like LinkedIn or other platforms.",
+        "workflowId": {
+          "__rl": true,
+          "value": "OJrq6I7lxUsQkig7",
+          "mode": "list",
+          "cachedResultName": "Job_Posting"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [
+            "userQuery"
+          ],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        280
+      ],
+      "id": "e0d23fed-2ca4-4a7b-9114-6aad52aff8f0",
+      "name": "Job Posting"
+    },
+    {
+      "parameters": {
+        "description": "Call this workflow when the user wants to clear candidate data after the hiring process is complete.",
+        "workflowId": {
+          "__rl": true,
+          "value": "srRM1EZWuGpxyRBs",
+          "mode": "list",
+          "cachedResultName": "Clear_Hiring_Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        620,
+        200
+      ],
+      "id": "6b2ca704-de0b-4c1c-a74e-609a1425435c",
+      "name": "Clear Hiring Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume Parsing and Scoring": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Interview": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Selection Status Update": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Information Retrieval": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Posting": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Hiring Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0e1019af-7a1d-4c4f-a4b9-18bca96d02e7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "A1B7mErGeiCAL1nw",
+  "tags": []
+}

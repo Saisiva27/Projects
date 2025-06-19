@@ -1,0 +1,160 @@
+{
+  "name": "Job_Posting",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "userQuery"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -340,
+        0
+      ],
+      "id": "6541c0c6-13df-4091-9139-358989f645b4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.userQuery }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a professional HR assistant. Generate a concise and engaging LinkedIn job post based on the user query.\n\nInstructions:\n- Do NOT use asterisks in the response.\n- Add relevant hashtags at the end. Hashtags are mandatory.\n- Include this line at the end of the post:\n  \"Please repost this post to help it reach the right candidates. E-mail your Resume to this \"saisiva.work@gmail.com\" Mail Address to apply. Make sure to attach your resume in PDF format only (this is mandatory).\"\n- Use side headings like \"Experience:\", \"Location:\", \"Salary:\", or \"Technology:\" only if they are mentioned in the query. Do not include these fields if they are not present in the query.\n- Do not assume or add any additional information such as tech stack, benefits, company name, etc., unless explicitly mentioned in the query.\n- Return the response strictly in the following JSON format:\n  {\n    \"text\": \"<LinkedIn job post text>\"\n  }\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        40,
+        0
+      ],
+      "id": "39bed6cf-e497-44c6-ac5b-96f02d3ea813",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        160
+      ],
+      "id": "a650d857-9ef8-4f35-b547-97d9df7df433",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "d2QnYDakr4QNj9Lt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"text\": \"We are hiring Frontend Developers with 1 year plus experience. If you're passionate about creating great user experiences and want to join a growing team, we’d love to hear from you.\\n\\nPlease repost this post to help it reach the right candidates. Click the link below to apply. Make sure to attach your resume in PDF format only (this is mandatory).\\n#FrontendDeveloper #Hiring #JobOpening\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        180
+      ],
+      "id": "dc6fb347-7984-4987-a221-610d98e062bf",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "person": "DcvUcz_8f2",
+        "text": "={{ $json.output.text }}\n\n\n",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "2b630e51-643a-4b36-94fe-c1082fca6b09",
+      "name": "LinkedIn",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "i3sqy9cluiYXwrmt",
+          "name": "LinkedIn account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1e1e7721-929b-454d-b488-b570f40df084",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "OJrq6I7lxUsQkig7",
+  "tags": []
+}

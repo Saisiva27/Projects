@@ -1,0 +1,247 @@
+{
+  "name": "Followups for Selected candidates",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 3,
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -600,
+        -140
+      ],
+      "id": "114bcc5c-cad4-4437-894a-b61052a5a7f4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWOchHhuudgKPff",
+          "mode": "list",
+          "cachedResultName": "Selected_Candidates",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblWOchHhuudgKPff"
+        },
+        "filterByFormula": "{No.of Followups} <= 2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -380,
+        -140
+      ],
+      "id": "79b74cd7-6489-4e26-86f9-9bc2c7cdb3c4",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Just Checking In – Next Steps at AutomateA2Z",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);\">\n      <tr>\n        <td>\n          <h2 style=\"color: #333;\">Hi {{ $json.Name }},</h2>\n\n          <p>We hope you’re doing well! Just a quick follow-up regarding your selection for the <strong>{{ $json.role }}</strong> role at <strong>AutomateA2Z</strong>.</p>\n\n          <p>We’re excited to move forward and would love to complete the next steps with you. If you haven’t had a chance to check your email or respond yet, we kindly request you to do so at your earliest convenience.</p>\n\n          <p><strong>Next Steps:</strong><br>\n          We request you to visit our company in person for the onboarding process. For more details, please visit our website at \n          <a href=\"http://www.automatea2z.in\" target=\"_blank\">www.automatea2z.in</a>.</p>\n\n          <p>If you’ve already responded or taken action, please disregard this message — and thank you! 😊</p>\n\n          <p>If you have any questions or concerns, feel free to reach out. We’re here to assist you in every way we can.</p>\n\n          <p>Looking forward to hearing from you soon!</p>\n\n          <p>Warm regards,<br>\n          <strong>Sai Siva</strong><br>\n          Recruiter<br>\n          AutomateA2Z</p>\n        </td>\n      </tr>\n    </table>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        -140
+      ],
+      "id": "c9a43ea8-8595-4763-9cdc-8afa7c6db3e6",
+      "name": "Gmail",
+      "webhookId": "450c9850-56a6-4ad0-9381-314954698616",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aW2zv25UFPdcjflE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appjlDXvccxNUiXGz",
+          "mode": "list",
+          "cachedResultName": "ULTIMATE HR AGENT",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWOchHhuudgKPff",
+          "mode": "list",
+          "cachedResultName": "Selected_Candidates",
+          "cachedResultUrl": "https://airtable.com/appjlDXvccxNUiXGz/tblWOchHhuudgKPff"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Airtable').item.json.id }}",
+            "Name": "={{ $('Airtable').item.json.Name }}",
+            "email": "={{ $('Airtable').item.json.email }}",
+            "role": "={{ $('Airtable').item.json.role }}",
+            "summary": "={{ $('Airtable').item.json.summary }}",
+            "No.of Followups": "={{ $('Airtable').item.json['No.of Followups'] + 1}} "
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "No.of Followups",
+              "displayName": "No.of Followups",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        60,
+        -140
+      ],
+      "id": "28808fb6-075f-4333-8f4a-0bbcf782cec1",
+      "name": "Airtable1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ky0bgObEH4StKDd9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Airtable1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1ab916d8-a915-4c25-97dc-8d41c6a34704",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1abe18ca67ac01356ee2a2a8862dd117cfb0e58e6cc0b6f33b9c353356d83e41"
+  },
+  "id": "lpYIR5sAPkouoKgm",
+  "tags": []
+}
