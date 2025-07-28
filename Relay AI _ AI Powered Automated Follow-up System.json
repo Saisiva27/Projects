@@ -1,0 +1,1197 @@
+{
+  "name": "Relay AI : AI Powered Automated Follow-up System",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -500,
+        -20
+      ],
+      "id": "bde60007-f7cf-4f5b-8e3e-16ca1eddd905",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Mh_0S8-DewMXiI-yBAtqm9zTzKyQ08gapkG9bn-s1to",
+          "mode": "list",
+          "cachedResultName": "AFS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mh_0S8-DewMXiI-yBAtqm9zTzKyQ08gapkG9bn-s1to/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mh_0S8-DewMXiI-yBAtqm9zTzKyQ08gapkG9bn-s1to/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -280,
+        -20
+      ],
+      "id": "16679bc5-cd05-4a4f-8091-d5cf05fd27fa",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "azoybbhe9wPuvpcK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71b40672-2e48-415d-ac29-a6928fe5d3f6",
+              "name": "daysSinceLastTouch",
+              "value": "={{ Math.round(DateTime.now().diff(DateTime.fromISO($json['Last Touch']), 'days').days) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -100,
+        -20
+      ],
+      "id": "659c3109-b090-4581-bde6-859e6dc5132a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "12b0de1f-c06a-4157-92fe-1f6d4e9978df",
+              "leftValue": "={{ $json.daysSinceLastTouch }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        -20
+      ],
+      "id": "8c0dab69-9d15-4e8c-98ba-d45818b0cb67",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "59286300-167b-4d7c-a2a8-bf1b1a62775f",
+              "leftValue": "={{ $json.daysSinceLastTouch }}",
+              "rightValue": 8,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        140
+      ],
+      "id": "77c645af-e71b-4d89-b779-aa10f2b3759b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "content": "Less than or equal to 4 Days",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        -340
+      ],
+      "id": "b5e1551f-a8be-4997-8b86-e6f7f9c2a28d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "5 to 8 Days",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        740,
+        -20
+      ],
+      "id": "47abad7d-bf8f-4606-88d0-a9d138632bb7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "More than 8 Days",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        240
+      ],
+      "id": "80a96432-6d2c-4b51-83df-0631c7bf2e46",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        80,
+        -20
+      ],
+      "id": "b7b4e01b-f3bd-4b86-a0ad-4d9adc439997",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        940,
+        -460
+      ],
+      "id": "5d32f844-f37a-4106-b3a9-c97684aac1f1",
+      "name": "Send History"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "SENT"
+          ],
+          "q": "=to:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        740,
+        -460
+      ],
+      "id": "77d8fa45-8a54-4661-8670-ead1a33b127e",
+      "name": "Get Sent History",
+      "webhookId": "4ace9f1d-5e21-4fd8-928d-c828043cc422",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "q": "=from:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1320,
+        -460
+      ],
+      "id": "ce5ea281-2c0e-4c0f-be73-aae4efb05bc4",
+      "name": "Get Received History",
+      "webhookId": "2cab5304-c110-4251-926e-1f0de3e68e28",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        -460
+      ],
+      "id": "5f56140c-2002-4568-af76-e42f8d76a5c0",
+      "name": "Received History"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant for AutomateA2Z. Your task is to analyze a complete but unsorted email history and draft an intelligent follow-up to a client on an active project.\n\n\n\nClient Name: {{ $('Get row(s) in sheet').item.json['First Name'] }}\n\nClient Company: {{ $('Get row(s) in sheet').item.json.Company }}\n\nProject Context / Notes: {{ $('Get row(s) in sheet').item.json.Notes }}\n\n\n\nThe conversation history is provided below in two JSON blocks: SENT and RECEIVED.\n\nEach block contains a `data` array, which holds the list of individual email objects.\n\nEach email object looks like this: `{\"date\": [\"...\"], \"subject\": [\"...\"], \"text\": [\"...\"]}`.\n\nTo read the date or text, you must take the first item from its array (e.g., `date[0]`).\n\n\n\nSENT HISTORY (JSON):\n\n{{ JSON.stringify($('Complete AGG of SENT').item.json.data) }}\n\nRECEIVED HISTORY (JSON):\n\n{{ JSON.stringify($json.data) }}\n\n\n\n---\n\nPRIMARY TASK (Follow these steps in order):\n\n1.  **Analyze & Sort:** Mentally combine the SENT and RECEIVED history arrays. Use the `date[0]` field within each email object to sort the entire conversation into a single chronological timeline (from oldest to newest).\n\n2.  **Identify the Latest Message:** Look at the very last email in the timeline you just created to understand the most current status of the conversation.\n\n3.  **Draft a Reply:** Based on the current status from that single latest message, generate a smart and brief 'keep-alive' email. Since the last contact was recent (within 4 days), your goal is to keep the conversation warm and active.\n\n\n\n---\n\nRULES:\n\n1.  Your reply MUST be a natural continuation of the very last message in the chronological timeline.\n\n2.  Keep the tone casual, collaborative, and confident. Avoid pushy language or asking questions that were already answered.\n\n3.  The entire email body must be under 40 words.\n\n4.  Format the output exactly as follows:\n\n{{ $('Get row(s) in sheet').item.json['First Name'] }},\n\n[Generated email body text]\n\nBest,\nAutomateA2Z",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI assistant for the founder of AutomateA2Z, a premier AI Automation Agency. AutomateA2Z specializes in building custom AI solutions and streamlining complex business processes for growing companies.  Your role is to act as the founder, drafting follow-up emails. Your communication style is Spartan: minimalist, direct, and purpose-driven. Every word must have a function. Avoid all filler, hype, and unnecessary pleasantries. Your goal is to be respectful of the prospect's time while confidently moving the conversation forward."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1980,
+        -440
+      ],
+      "id": "c2ef9227-cefd-49f8-b79e-0ff26d65741d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2300,
+        -240
+      ],
+      "id": "932c028d-31b6-43a0-9b03-fc3825fd11c1",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "quick follow-up - AutomateA2Z",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2460,
+        -420
+      ],
+      "id": "b40908a5-6647-4def-9131-e8556748026e",
+      "name": "Create a draft",
+      "webhookId": "60168b54-3cee-4e1e-9fba-c82c04ce4117",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        -460
+      ],
+      "id": "89c0216c-1dad-4a72-a8ad-cd5ca7dbfe4d",
+      "name": "Complete AGG of SENT"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        -460
+      ],
+      "id": "b410d794-86f4-4028-92e1-ade38f5eed73",
+      "name": "Complete AGG of Received"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -40
+      ],
+      "id": "2a63e8ed-1163-4346-b9a9-8ea8141ebf95",
+      "name": "Send History1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "SENT"
+          ],
+          "q": "=to:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        -40
+      ],
+      "id": "f0c88647-488d-46de-a233-e3a1a9c570a2",
+      "name": "Get Sent History1",
+      "webhookId": "4ace9f1d-5e21-4fd8-928d-c828043cc422",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "q": "=from:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1460,
+        -40
+      ],
+      "id": "af881a42-5e38-45f4-9c3b-640458581a3d",
+      "name": "Get Received History1",
+      "webhookId": "2cab5304-c110-4251-926e-1f0de3e68e28",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        -40
+      ],
+      "id": "433cde68-2ec3-4f30-a469-88338cc9074e",
+      "name": "Received History1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CONTEXT:\nYou are an AI assistant for AutomateA2Z. Your task is to analyze a complete but unsorted email history and draft an intelligent follow-up to a client on an active project.\n\nClient Name: {{ $('Get row(s) in sheet').item.json['First Name'] }}\nClient Company: {{ $('Get row(s) in sheet').item.json.Company }}\nProject Context / Notes: {{ $('Get row(s) in sheet').item.json.Notes }}\n\nThe conversation history is provided below in two JSON blocks: SENT and RECEIVED.\nEach block contains a `data` array, which holds the list of individual email objects.\nEach email object looks like this: `{\"date\": [\"...\"], \"subject\": [\"...\"], \"text\": [\"...\"]}`.\nTo read the date or text, you must take the first item from its array (e.g., `date[0]`).\n\nSENT HISTORY (JSON):\n{{ JSON.stringify($('Complete AGG of SENT1').item.json.data) }}\n\nRECEIVED HISTORY (JSON):\n{{ JSON.stringify($json.data) }}\n\n---\nPRIMARY TASK (Follow these steps in order):\n1.  **Analyze & Sort:** Mentally combine both the SENT and RECEIVED history arrays. Use the `date[0]` field within each email object to sort the entire conversation into a single chronological timeline (from oldest to newest).\n2.  **Identify the Latest Message:** Look at the very last email in the timeline you just created to understand the most current status of the conversation.\n3.  **Draft a Reply:** Based on the current status from that single latest message, generate a concise follow-up email. It has been about a week since the last major contact, so your goal is to gently re-engage the client and nudge them towards the next logical step.\n\n---\nRULES:\n1.  Your reply MUST be a natural continuation of the very last message in the chronological timeline.\n2.  The tone should be purpose-driven but not aggressive. Ask a specific question related to the project's progress or next milestone to encourage a direct response.\n3.  The entire email body must be under 50 words.\n4.  Format the output exactly as follows:\n{{ $('Get row(s) in sheet').item.json['First Name'] }},\n\n[Generated email body text]\n\nBest,\nAutomateA2Z",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI assistant for the founder of AutomateA2Z, a premier AI Automation Agency. AutomateA2Z specializes in building custom AI solutions and streamlining complex business processes for growing companies.  Your role is to act as the founder, drafting follow-up emails. Your communication style is Spartan: minimalist, direct, and purpose-driven. Every word must have a function. Avoid all filler, hype, and unnecessary pleasantries. Your goal is to be respectful of the prospect's time while confidently moving the conversation forward."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2140,
+        -40
+      ],
+      "id": "d6dee9aa-5b68-4519-bc9e-31c86a1396c6",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2060,
+        160
+      ],
+      "id": "7895b591-7de5-48b4-beb6-fe4369c82859",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "quick follow-up - AutomateA2Z",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2540,
+        -40
+      ],
+      "id": "1ad3ccb5-f35a-4317-9b1a-83bb58cb09ef",
+      "name": "Create a draft1",
+      "webhookId": "60168b54-3cee-4e1e-9fba-c82c04ce4117",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -40
+      ],
+      "id": "f77ed67d-df53-44a3-915e-80d39be98f1d",
+      "name": "Complete AGG of SENT1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        -40
+      ],
+      "id": "00bb42f0-d6e6-4e15-a1e5-f58bb3eaee0c",
+      "name": "Complete AGG of Received1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        380
+      ],
+      "id": "1187759f-8d1b-4089-9a7d-bc704f498ffa",
+      "name": "Send History2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "SENT"
+          ],
+          "q": "=to:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        980,
+        380
+      ],
+      "id": "b5a20927-fee0-431a-97b0-18f2de043be7",
+      "name": "Get Sent History2",
+      "webhookId": "4ace9f1d-5e21-4fd8-928d-c828043cc422",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "q": "=from:{{ $('Get row(s) in sheet').item.json.Email }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1560,
+        380
+      ],
+      "id": "6184499c-946e-4fad-aba3-6250bd4ac695",
+      "name": "Get Received History2",
+      "webhookId": "2cab5304-c110-4251-926e-1f0de3e68e28",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "headers.date"
+            },
+            {
+              "fieldToAggregate": "headers.subject"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        380
+      ],
+      "id": "dea7e292-5896-4bb2-a93c-bac00d2f6418",
+      "name": "Received History2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CONTEXT:\nYou are an AI assistant for AutomateA2Z. Your task is to analyze a complete but unsorted email history and draft an intelligent follow-up to a client on an active project.\n\nClient Name: {{ $('Get row(s) in sheet').item.json['First Name'] }}\nClient Company: {{ $('Get row(s) in sheet').item.json.Company }}\nProject Context / Notes: {{ $('Get row(s) in sheet').item.json.Notes }}\n\nThe conversation history is provided below in two JSON blocks: SENT and RECEIVED.\nEach block contains a `data` array, which holds the list of individual email objects.\nEach email object looks like this: `{\"date\": [\"...\"], \"subject\": [\"...\"], \"text\": [\"...\"]}`.\nTo read the date or text, you must take the first item from its array (e.g., `date[0]`).\n\nSENT HISTORY (JSON):\n{{ JSON.stringify($('Complete AGG of SENT2').item.json.data) }}\n\nRECEIVED HISTORY (JSON):\n{{ JSON.stringify($json.data) }}\n\n---\nPRIMARY TASK (Follow these steps in order):\n1.  **Analyze & Sort:** Mentally combine both the SENT and RECEIVED history arrays. Use the `date[0]` field within each email object to sort the entire conversation into a single chronological timeline (from oldest to newest).\n2.  **Identify the Latest Message:** Look at the very last email in the timeline you just created to understand the most current status of the conversation.\n3.  **Draft a Reply:** Based on the current status from that single latest message, generate a direct re-engagement email. It has been over a week since the last major contact, so your goal is to get a clear response and re-establish project momentum.\n\n---\nRULES:\n1.  Your reply MUST be a natural continuation of the very last message in the chronological timeline.\n2.  The tone should be firm and professional. Use a clear and direct call to action to get the project moving again. Proposing a brief meeting to re-sync is a strong option if the conversation has stalled.\n3.  The entire email body must be under 50 words.\n4.  Format the output exactly as follows:\n{{ $('Get row(s) in sheet').item.json['First Name'] }},\n\n[Generated email body text]\n\nBest,\nAutomateA2Z",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI assistant for the founder of AutomateA2Z, a premier AI Automation Agency. AutomateA2Z specializes in building custom AI solutions and streamlining complex business processes for growing companies.  Your role is to act as the founder, drafting follow-up emails. Your communication style is Spartan: minimalist, direct, and purpose-driven. Every word must have a function. Avoid all filler, hype, and unnecessary pleasantries. Your goal is to be respectful of the prospect's time while confidently moving the conversation forward."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2240,
+        380
+      ],
+      "id": "6f70ba77-3e57-46ef-9044-140d02159753",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        580
+      ],
+      "id": "274be1f5-3073-4ca2-9e7d-45ec0456dc6d",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "quick follow-up - AutomateA2Z",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2640,
+        380
+      ],
+      "id": "6f26ccbe-553a-4999-b0ab-6fa33ff0fe56",
+      "name": "Create a draft2",
+      "webhookId": "60168b54-3cee-4e1e-9fba-c82c04ce4117",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        380
+      ],
+      "id": "9097fdcd-075c-49e6-b964-4424b3097d74",
+      "name": "Complete AGG of SENT2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1940,
+        380
+      ],
+      "id": "7e4d68fe-4b11-456a-86ef-89c0280f40c1",
+      "name": "Complete AGG of Received2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Sent History",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send History": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of SENT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sent History": {
+      "main": [
+        [
+          {
+            "node": "Send History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Received History": {
+      "main": [
+        [
+          {
+            "node": "Received History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Received History": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get Sent History1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Sent History2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of SENT": {
+      "main": [
+        [
+          {
+            "node": "Get Received History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of Received": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send History1": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of SENT1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sent History1": {
+      "main": [
+        [
+          {
+            "node": "Send History1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Received History1": {
+      "main": [
+        [
+          {
+            "node": "Received History1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Received History1": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of Received1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of SENT1": {
+      "main": [
+        [
+          {
+            "node": "Get Received History1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of Received1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send History2": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of SENT2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sent History2": {
+      "main": [
+        [
+          {
+            "node": "Send History2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Received History2": {
+      "main": [
+        [
+          {
+            "node": "Received History2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Received History2": {
+      "main": [
+        [
+          {
+            "node": "Complete AGG of Received2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Create a draft2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of SENT2": {
+      "main": [
+        [
+          {
+            "node": "Get Received History2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete AGG of Received2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7ad0a45e-4464-43a8-b2de-5ff7331c6562",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "LNocDw53o5Yi6Etz",
+  "tags": []
+}

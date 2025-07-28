@@ -1,0 +1,527 @@
+{
+  "name": "PriceSage-PriceChangesUpdationandEmail",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        -20
+      ],
+      "id": "c4d1db58-7d08-4dac-aaa0-1900c6d9badf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appIPpXtEjqM83P8C",
+          "mode": "list",
+          "cachedResultName": "PriceSage",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3R5YnDRSIIlxM9",
+          "mode": "list",
+          "cachedResultName": "detailedinfo",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C/tbl3R5YnDRSIIlxM9"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -100,
+        -20
+      ],
+      "id": "e9eac85d-e13d-45ea-8fef-a45053b9df0e",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/extract",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer fc-fdcefec6c2b24679ad952af48e6666b9"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    \"{{ $json.url }}\"\n  ],\n  \"prompt\": \"You are an automated data extraction engine designed to extract a product price from HTML content. Your goal is to identify the primary prices listed on the page. If you find multiple distinct prices, such as both a sale price and an original list price, you must calculate their average and return that single value. If only one price is found, return that price directly. The final value must be a purely numeric type (integer or float), so you must remove all currency symbols (e.g., $, €, ₹), commas, and surrounding text. Your response must be only a valid JSON object with a single key, price. If no price can be located on the page, the value for the price key must be null.\",\n  \"schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"price\": {\n        \"type\": \"number\"\n      }\n    },\n    \"required\": [\n      \"price\"\n    ]\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        -20
+      ],
+      "id": "4ff38a0a-cee9-4bad-af49-921d46f5303f",
+      "name": "HTTP Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        60,
+        -20
+      ],
+      "id": "9c19c343-989e-4f98-a6e3-e85b66edef60",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1349cf7d-0a2f-4e7e-a299-afe36cdeff1b",
+              "leftValue": "={{ $json.data.price }}",
+              "rightValue": "={{ $('Loop Over Items').item.json.price }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -20
+      ],
+      "id": "e78fa794-1368-4e2a-8509-3376c0614d8b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "saisivamani27@gmail.com",
+        "subject": "Competitor Price Changed: New Price Available",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\">\n    <title>Competitor Price Changed</title>\n    <style>\n      body {\n        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n        background-color: #f7f9fc;\n        margin: 0;\n        padding: 0;\n      }\n      .container {\n        max-width: 600px;\n        margin: 40px auto;\n        background-color: #ffffff;\n        border-radius: 8px;\n        overflow: hidden;\n        box-shadow: 0 4px 10px rgba(0,0,0,0.05);\n        border: 1px solid #e1e4e8;\n      }\n      .header {\n        background-color: #2563eb;\n        color: #ffffff;\n        padding: 20px 30px;\n        text-align: center;\n        font-size: 22px;\n        font-weight: bold;\n      }\n      .content {\n        padding: 30px;\n        font-size: 16px;\n        color: #333333;\n      }\n      .content p {\n        margin-bottom: 20px;\n      }\n      .product-title {\n        font-size: 20px;\n        font-weight: bold;\n        color: #111827;\n        margin-bottom: 10px;\n        text-align: center;\n      }\n      .price-box {\n        background-color: #f1f5f9;\n        border-radius: 6px;\n        padding: 20px;\n        text-align: center;\n        margin-bottom: 20px;\n        font-size: 18px;\n      }\n      .price-old {\n        text-decoration: line-through;\n        color: #888888;\n      }\n      .price-new {\n        color: #10b981;\n        font-weight: bold;\n        font-size: 20px;\n      }\n      .button {\n        display: inline-block;\n        background-color: #2563eb;\n        color: white;\n        text-decoration: none;\n        padding: 12px 20px;\n        border-radius: 6px;\n        font-weight: 500;\n        margin-top: 10px;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <div class=\"header\">\n        🔔 Competitor Price Changed\n      </div>\n      <div class=\"content\">\n        <p>Hi {{ $json.userName || 'there' }},</p>\n        <p>We’ve detected a price change for the following competitor product:</p>\n        \n        <div class=\"product-title\">\n          {{ $('Loop Over Items').item.json.product_title }}\n        </div>\n\n        <div class=\"price-box\">\n          <div>Old Price: <span class=\"price-old\">₹{{ $('Loop Over Items').item.json.price }}</span></div>\n          <div>New Price: <span class=\"price-new\">₹{{ $json.data.price }}</span></div>\n        </div>\n\n        <p>You can view the competitor’s listing here:</p>\n        <p>\n          <a href=\"{{ $('Loop Over Items').item.json.url }}\" class=\"button\" target=\"_blank\">View Competitor Product</a>\n        </p>\n\n        <p>Stay sharp — price changes like these could affect your market position.</p>\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1340,
+        -20
+      ],
+      "id": "62032fc0-75da-4730-a71e-44a5a7c8cfc7",
+      "name": "Send a message",
+      "webhookId": "5cb8e91a-3f9c-4e8c-bb87-2b5c205ca98b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "i0ikaOc0zrNJacQP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.firecrawl.dev/v1/extract/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer fc-fdcefec6c2b24679ad952af48e6666b9"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -20
+      ],
+      "id": "85578cdc-9efd-4473-b28c-2bea7fe388de",
+      "name": "HTTP Request1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 100
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -20
+      ],
+      "id": "28bd46e7-d47c-46f6-8b03-50dd67f83399",
+      "name": "Wait",
+      "webhookId": "2ce748ad-8db9-4a15-9c8c-cac3c0c8e6e3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7728d5ea-4b16-437e-a920-7808c8eec4aa",
+              "leftValue": "={{ $json.data.price }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -20
+      ],
+      "id": "8cb8d792-56b0-485f-ba71-4a0f74f0652a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appIPpXtEjqM83P8C",
+          "mode": "list",
+          "cachedResultName": "PriceSage",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3R5YnDRSIIlxM9",
+          "mode": "list",
+          "cachedResultName": "detailedinfo",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C/tbl3R5YnDRSIIlxM9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Loop Over Items').item.json.id }}",
+            "price": "={{ $('HTTP Request1').item.json.data.price }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "product_title",
+              "displayName": "product_title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "in_stock",
+              "displayName": "in_stock",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "brand",
+              "displayName": "brand",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "feature_summary",
+              "displayName": "feature_summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1560,
+        -20
+      ],
+      "id": "d9f236c3-742e-4f8c-857b-c47c74b87038",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "ADD api keys for http req nodes of apitemplate"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -160
+      ],
+      "id": "3ceb14cc-d795-485c-8869-5630ec3a43d1",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L3biCwJnqtCIUdou"
+  },
+  "versionId": "ba516ea6-30cc-4d6d-a16c-c18b2ec8e8f6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "l8muPV4IcRZDu1hN",
+  "tags": []
+}

@@ -1,0 +1,326 @@
+{
+  "name": "1. PriceSage - Site to Airtable",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "09c0a862-4905-4ef3-998a-0d4146745a8a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -520,
+        -120
+      ],
+      "id": "81b1525e-a800-4a46-b931-4e51e5a3d0e9",
+      "name": "Webhook",
+      "webhookId": "09c0a862-4905-4ef3-998a-0d4146745a8a"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appIPpXtEjqM83P8C",
+          "mode": "list",
+          "cachedResultName": "PriceSage",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblYLr6tqwEM4I1Pj",
+          "mode": "list",
+          "cachedResultName": "productinfo",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C/tblYLr6tqwEM4I1Pj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "company name": "={{ $json.company }}",
+            "Product url": "={{ $json.product_link }}",
+            "detailedinfo": "false"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Product url",
+              "displayName": "Product url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Modified",
+              "displayName": "Last Modified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "detailedinfo",
+              "displayName": "detailedinfo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -120
+      ],
+      "id": "74f2e2cb-8f0f-4d8d-90eb-fe93c1aa6918",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -120
+      ],
+      "id": "4f7760bc-0440-44e2-86b0-a305ca5cffb8",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PWZMxKz508upae8E",
+          "mode": "list",
+          "cachedResultName": "2 .PriceSage- Detailed Insights Updated"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Webhook').item.json.headers.host }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        -120
+      ],
+      "id": "57f2e7bb-292c-4b45-8237-d1613c154c98",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        140,
+        -120
+      ],
+      "id": "cb404ec4-f048-4bb9-8468-105273c02bcb",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "content": "ProductForm.tsx : change the webhook line 180"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -580,
+        -240
+      ],
+      "id": "368a9675-c2e8-425f-b17a-1ebce4eee495",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "execute : 2 .PriceSage- Detailed Insights Updated"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        280,
+        -240
+      ],
+      "id": "cba668b1-ddff-4331-8f26-a65b6d9e83ea",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "saiiiiiii90.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+            "content-length": "241",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-US,en;q=0.9",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "223.185.45.43",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "95e16f0b111f17a7-MAA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://preview--lovable-insight-builder.lovable.app",
+            "priority": "u=1, i",
+            "referer": "https://preview--lovable-insight-builder.lovable.app/",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "223.185.45.43, 162.158.55.80",
+            "x-forwarded-host": "saiiiiiii90.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-10-6888ffdd77-ctcg6",
+            "x-is-trusted": "yes",
+            "x-real-ip": "223.185.45.43"
+          },
+          "params": {},
+          "query": {},
+          "body": [
+            {
+              "company": "pilgrim",
+              "product_link": "https://discoverpilgrim.com/products/korean-aloe-cooling-fluid-sunscreen-spf-50-pa"
+            },
+            {
+              "company": "pilgrim",
+              "product_link": "https://discoverpilgrim.com/products/1-hyaluronic-acid-sunscreen-gel-spf-50-pa"
+            }
+          ],
+          "webhookUrl": "https://saiiiiiii90.app.n8n.cloud/webhook/09c0a862-4905-4ef3-998a-0d4146745a8a",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L3biCwJnqtCIUdou"
+  },
+  "versionId": "e90f4049-83f6-45b2-8581-144318f75969",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "zJEjOxphNN5IBQDi",
+  "tags": []
+}

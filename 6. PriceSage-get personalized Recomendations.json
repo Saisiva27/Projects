@@ -1,0 +1,555 @@
+{
+  "name": "PriceSage-get personalized Recomendations",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "48f816b6-f20f-48c9-bab8-88f4b84c1878",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        -40
+      ],
+      "id": "52f07d09-a234-485f-9958-33d5b43076f6",
+      "name": "Webhook",
+      "webhookId": "48f816b6-f20f-48c9-bab8-88f4b84c1878"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        460,
+        -40
+      ],
+      "id": "7e054f53-e189-4ddd-90be-d094e7dc8028",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appIPpXtEjqM83P8C",
+          "mode": "list",
+          "cachedResultName": "PriceSage",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3R5YnDRSIIlxM9",
+          "mode": "list",
+          "cachedResultName": "detailedinfo",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C/tbl3R5YnDRSIIlxM9"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -380,
+        -40
+      ],
+      "id": "916138d5-d815-43a6-9589-5068d30e54e1",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -40
+      ],
+      "id": "3f19f7ba-0782-437c-a15e-ec1777991d6a",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=\n\n**Persona**\n\nYou are a **Principal AI Strategist**. Your function is to generate investment-grade market entry analysis by synthesizing raw competitor data into a multi-faceted strategic brief. Your analysis must be clear, data-driven, and defensible, with every recommendation backed by explicit reasoning and a confidence assessment. Your output is a mission-critical document for executive decision-making.\n\n**Context**\n\nYou will be provided with a JSON array of validated competitor product data. Each object contains fields such as `price`, `brand`, `feature_summary`, and `stock_status`. Your task is to perform a deep, multi-layered analysis and produce a strategic brief for a new product launch in this category.\n\n**Core Task & Multi-Step Logic**\n\nAnalyze the provided competitor data and generate a strategic recommendation brief. You must follow a strict \"Analyze -\\> Reason -\\> Score -\\> Format\" logic for every component of the output.\n\n1.  **Analyze:** Perform the specific analysis required for each section (e.g., price distribution, feature commonality).\n2.  **Reason:** Explicitly write down the \"why\" behind your conclusion. This reasoning must be based directly on the provided data.\n3.  **Score:** Assign a confidence score (`Low`, `Medium`, `High`) to each recommendation, reflecting the strength and clarity of the supporting data.\n4.  **Format:** Assemble the final analysis into the specified JSON structure.\n\n**Output Format & Structure**\n\n**CRITICAL:** Your entire response must be a single, valid JSON object and nothing else. Do not include any explanatory text, markdown formatting, or characters outside the main JSON structure.\n\nExample Json Response:\n\n```json\n{\n  \"executive_summary\": {\n    \"positioning_statement\": \"A concise, compelling paragraph that synthesizes the entire strategy, defining the product's ideal market position, value proposition, and target audience.\",\n    \"key_differentiators\": [\n      \"A bulleted list of the top 2-3 unique selling propositions that will make this product stand out.\"\n    ]\n  },\n  \"pricing_strategy\": {\n    \"recommended_range_usd\": {\n      \"min\": 150,\n      \"max\": 199\n    },\n    \"reasoning\": \"This price point positions the product as a premium alternative to budget options like Brand A ($99) while remaining highly competitive with the core market leader, Brand B ($189), offering superior features for a similar investment.\",\n    \"confidence\": \"High\"\n  },\n  \"feature_roadmap\": {\n    \"table_stakes_features\": [\n      {\n        \"feature\": \"Long-Lasting Woody Scent\",\n        \"reasoning\": \"Present in 85% of competitor products within the target price range that are consistently in stock, indicating this is a core customer expectation.\",\n        \"confidence\": \"High\"\n      },\n      {\n        \"feature\": \"50ml and 100ml Size Options\",\n        \"reasoning\": \"These two sizes represent the vast majority of market offerings, catering to both trial and repeat purchasers.\",\n        \"confidence\": \"High\"\n      }\n    ],\n    \"opportunity_features\": [\n      {\n        \"feature\": \"Sustainable/Refillable Packaging\",\n        \"reasoning\": \"Only 10% of competitors mention sustainability, yet market trend data shows a growing consumer demand for eco-friendly options. This is a significant, underserved market gap.\",\n        \"confidence\": \"Medium\"\n      }\n    ]\n  },\n  \"market_opportunities\": {\n    \"stock_based_opportunity\": {\n      \"observation\": \"High-end brands focusing on 'Oud' scents (priced $250+) are frequently out of stock, indicating strong demand that exceeds supply.\",\n      \"recommendation\": \"Consider launching a limited edition 'Premium Oud' variant to capture this unmet demand at a higher price point.\",\n      \"confidence\": \"Medium\"\n    },\n    \"variant_opportunity\": {\n      \"observation\": \"The market is saturated with standard 50ml/100ml bottles. There is a lack of 'Discovery Sets' or 'Travel Kits'.\",\n      \"recommendation\": \"Launch with a 'Discovery Trio' of 10ml bottles to lower the barrier to entry and encourage scent exploration, leading to future full-size purchases.\",\n      \"confidence\": \"High\"\n    }\n  }\n}\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        60,
+        -40
+      ],
+      "id": "b39107cc-4fb3-4641-a568-9cb607e31f33",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        140
+      ],
+      "id": "823ff29a-9709-4087-aa7e-0d286da9bc3d",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"executive_summary\": {\n    \"positioning_statement\": \"A concise, compelling paragraph that synthesizes the entire strategy, defining the product's ideal market position, value proposition, and target audience.\",\n    \"key_differentiators\": [\n      \"A bulleted list of the top 2-3 unique selling propositions that will make this product stand out.\"\n    ]\n  },\n  \"pricing_strategy\": {\n    \"recommended_range_usd\": {\n      \"min\": 150,\n      \"max\": 199\n    },\n    \"reasoning\": \"This price point positions the product as a premium alternative to budget options like Brand A ($99) while remaining highly competitive with the core market leader, Brand B ($189), offering superior features for a similar investment.\",\n    \"confidence\": \"High\"\n  },\n  \"feature_roadmap\": {\n    \"table_stakes_features\": [\n      {\n        \"feature\": \"Long-Lasting Woody Scent\",\n        \"reasoning\": \"Present in 85% of competitor products within the target price range that are consistently in stock, indicating this is a core customer expectation.\",\n        \"confidence\": \"High\"\n      },\n      {\n        \"feature\": \"50ml and 100ml Size Options\",\n        \"reasoning\": \"These two sizes represent the vast majority of market offerings, catering to both trial and repeat purchasers.\",\n        \"confidence\": \"High\"\n      }\n    ],\n    \"opportunity_features\": [\n      {\n        \"feature\": \"Sustainable/Refillable Packaging\",\n        \"reasoning\": \"Only 10% of competitors mention sustainability, yet market trend data shows a growing consumer demand for eco-friendly options. This is a significant, underserved market gap.\",\n        \"confidence\": \"Medium\"\n      }\n    ]\n  },\n  \"market_opportunities\": {\n    \"stock_based_opportunity\": {\n      \"observation\": \"High-end brands focusing on 'Oud' scents (priced $250+) are frequently out of stock, indicating strong demand that exceeds supply.\",\n      \"recommendation\": \"Consider launching a limited edition 'Premium Oud' variant to capture this unmet demand at a higher price point.\",\n      \"confidence\": \"Medium\"\n    },\n    \"variant_opportunity\": {\n      \"observation\": \"The market is saturated with standard 50ml/100ml bottles. There is a lack of 'Discovery Sets' or 'Travel Kits'.\",\n      \"recommendation\": \"Launch with a 'Discovery Trio' of 10ml bottles to lower the barrier to entry and encourage scent exploration, leading to future full-size purchases.\",\n      \"confidence\": \"High\"\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        140
+      ],
+      "id": "78e96a3f-6ddc-40fa-9f88-96295fa52b00",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        300,
+        264.75555555555553
+      ],
+      "id": "88b95b0f-d3a6-47d0-9a3e-e28a8bc4afad",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=\n**Persona**\n\nYou are an **Executive AI Reporting Engine**. Your sole function is to transform a complex strategic analysis JSON object into a visually stunning, professional, and highly readable HTML document, formatted for a premium PDF generation API. Your output must be meticulous, with perfect data integrity and a design that reflects a high-value consulting deliverable.\n\n**Context**\n\nYou will be provided with a rich JSON object  containing a multi-layered market entry strategy. This object includes nested structures, arrays of objects, and properties for `reasoning` and `confidence`.\n\n**Core Task & Design Mandate**\n\nYour task is to parse the input JSON and generate a valid JSON payload .\n\n**CRITICAL DATA INTEGRITY MANDATE:**\nYou must act as a data validator during this process. Before rendering any numerical data (especially prices like `min` and `max`), you must ensure it is presented **exactly** as provided in the source JSON. Do not alter, add, or invent numerical values. The integrity of the data is paramount. **Use the Dollar symbol ($) for all pricing information.**\n\n**HTML Design & Structure Guidelines:**\n\nYou must generate a single HTML string with embedded CSS that follows this premium design structure:\n\n1.  **Header:** A main header with the report title and a subtitle.\n2.  **Executive Summary:** A prominent, styled `div` for the `executive_summary`.\n3.  **Sections:** Each top-level key from the JSON (e.g., `pricing_strategy`, `feature_roadmap`) must be a main section.\n4.  **Cards:** Within each section, each distinct recommendation (e.g., a specific feature, a market opportunity) must be rendered as a \"card\" (`<div class=\"card\">`).\n5.  **Reasoning:** The `reasoning` text for each recommendation must be included within its card, styled as a blockquote.\n6.  **Confidence Badges:** The `confidence` score (`High`, `Medium`, `Low`) must be rendered as a colored badge (`<span class=\"badge\">`) inside each card. The color must correspond to the confidence level.\n\n**Output Format**\n\nYour output **must** be a single, valid JSON object adhering strictly to the following API structure. Do not include any text or characters outside of this JSON object.\n\n```json\n{\n  \"body\": \"<HTML with embedded CSS>\",\n  \"data\": {\n    \"name\": \"Strategic Market Entry Brief\"\n  },\n  \"settings\": {\n    \"paper_size\": \"A4\",\n    \"orientation\": \"1\",\n    \"margin_top\": \"25\",\n    \"margin_right\": \"25\",\n    \"margin_bottom\": \"25\",\n    \"margin_left\": \"25\",\n    \"print_background\": \"1\"\n  }\n}\n```\n\n-----\n\n### Example of Generated `body` Content (USD Version)\n\nThis is what the AI should generate inside the `\"body\"` key, based on the new JSON structure and currency requirement.\n\n```html\n<style>\n    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; color: #1a202c; background-color: #f7fafc; line-height: 1.6; }\n    .container { padding: 20px; }\n    .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; }\n    .header h1 { font-size: 28px; font-weight: 700; color: #2d3748; margin: 0; }\n    .header p { font-size: 16px; color: #718096; margin-top: 4px; }\n    .section { margin-bottom: 35px; }\n    .section-title { font-size: 22px; font-weight: 600; color: #2d3748; margin-bottom: 20px; border-bottom: 1px solid #cbd5e0; padding-bottom: 10px; }\n    .card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }\n    .card-title { font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }\n    .badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; }\n    .badge.high { background-color: #c6f6d5; color: #2f855a; }\n    .badge.medium { background-color: #feebc8; color: #975a16; }\n    .badge.low { background-color: #fed7d7; color: #9b2c2c; }\n    .reasoning { background-color: #f7fafc; border-left: 4px solid #4a5568; padding: 15px; margin-top: 15px; font-style: italic; color: #4a5568; }\n    .reasoning p { margin: 0; }\n    .summary-card { background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); color: #ffffff; }\n    .summary-card .card-title { color: #ffffff; }\n    .summary-card ul { list-style-type: none; padding-left: 0; }\n    .summary-card li { margin-bottom: 8px; padding-left: 20px; position: relative; }\n    .summary-card li::before { content: '✓'; color: #68d391; position: absolute; left: 0; }\n    .price-display { font-size: 24px; font-weight: 700; color: #2f855a; }\n</style>\n<div class=\"container\">\n    <div class=\"header\">\n        <h1>Strategic Market Entry Brief</h1>\n        <p>AI-Generated Intelligence Report</p>\n    </div>\n\n    <div class=\"section\">\n        <h2 class=\"section-title\">Executive Summary</h2>\n        <div class=\"card summary-card\">\n            <div class=\"card-title\">Positioning Statement</div>\n            <p>A concise, compelling paragraph that synthesizes the entire strategy, defining the product's ideal market position, value proposition, and target audience.</p>\n            <div class=\"reasoning\">\n                <p><strong>Key Differentiators:</strong></p>\n                <ul>\n                    <li>A bulleted list of the top 2-3 unique selling propositions that will make this product stand out.</li>\n                </ul>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"section\">\n        <h2 class=\"section-title\">Pricing Strategy</h2>\n        <div class=\"card\">\n            <div class=\"card-title\">\n                <span>Recommended Range</span>\n                <span class=\"badge high\">High</span>\n            </div>\n            <p class=\"price-display\">${min} – ${max}</p>\n            <div class=\"reasoning\">\n                <p>This price point positions the product as a premium alternative to budget options like Brand A ($99) while remaining highly competitive with the core market leader, Brand B ($189), offering superior features for a similar investment.</p>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"section\">\n        <h2 class=\"section-title\">Feature Roadmap</h2>\n        <div class=\"card\">\n            <div class=\"card-title\">\n                <span>Table Stakes Feature: Long-Lasting Woody Scent</span>\n                <span class=\"badge high\">High</span>\n            </div>\n            <div class=\"reasoning\">\n                <p>Present in 85% of competitor products within the target price range that are consistently in stock, indicating this is a core customer expectation.</p>\n            </div>\n        </div>\n        <div class=\"card\">\n            <div class=\"card-title\">\n                <span>Opportunity Feature: Sustainable/Refillable Packaging</span>\n                <span class=\"badge medium\">Medium</span>\n            </div>\n            <div class=\"reasoning\">\n                <p>Only 10% of competitors mention sustainability, yet market trend data shows a growing consumer demand for eco-friendly options. This is a significant, underserved market gap.</p>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"section\">\n        <h2 class=\"section-title\">Market Opportunities</h2>\n        <div class=\"card\">\n            <div class=\"card-title\">\n                <span>Stock-Based Opportunity</span>\n                <span class=\"badge medium\">Medium</span>\n            </div>\n            <p><strong>Observation:</strong> High-end brands focusing on 'Oud' scents (priced $250+) are frequently out of stock, indicating strong demand that exceeds supply.</p>\n            <div class=\"reasoning\">\n                <p><strong>Recommendation:</strong> Consider launching a limited edition 'Premium Oud' variant to capture this unmet demand at a higher price point.</p>\n            </div>\n        </div>\n    </div>\n</div>\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        680,
+        -40
+      ],
+      "id": "1ed01bc0-54cb-4780-aa34-b065bc4642b4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        640,
+        160
+      ],
+      "id": "a8dc780c-94af-41fe-a352-b82ec538e982",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"body\": \"<HTML with embedded CSS>\",\n  \"data\": {\n    \"name\": \"Strategic Market Entry Brief\"\n  },\n  \"settings\": {\n    \"paper_size\": \"A4\",\n    \"orientation\": \"1\",\n    \"margin_top\": \"25\",\n    \"margin_right\": \"25\",\n    \"margin_bottom\": \"25\",\n    \"margin_left\": \"25\",\n    \"print_background\": \"1\"\n  }\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        840,
+        180
+      ],
+      "id": "4ac6b383-8333-4a82-b347-10d0f9f0175e",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rest.apitemplate.io/v2/create-pdf-from-html",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "1932MzM3MzE6MzA5MTU6V3hKdExndVp0RjlMZkFiOQ="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        -40
+      ],
+      "id": "95207d33-e014-4aa8-9aa8-bafad51b9fe0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        920,
+        340
+      ],
+      "id": "cb2584de-8cf5-4591-a7ba-c443a599ce2c",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "saisivamani27@gmail.com",
+        "subject": "Your Personalized Competitor Pricing Intelligence Report is Ready",
+        "message": "=<!DOCTYPE html> <html>   <head>     <meta charset=\"UTF-8\" />     <title>Your Report</title>     <style>       body {         font-family: Arial, sans-serif;         background: #f4f4f4;         padding: 40px 0;         margin: 0;       }       .container {         max-width: 500px;         margin: auto;         background: #ffffff;         padding: 30px;         text-align: center;         border-radius: 8px;         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);       }       .btn {         display: inline-block;         padding: 14px 28px;         background-color: #007bff;         color: #ffffff;         text-decoration: none;         border-radius: 6px;         font-size: 16px;         margin-top: 20px;       }       .btn:hover {         background-color: #0056b3;       }     </style>   </head>   <body>     <div class=\"container\">       <h2>Your PDF Report is Ready</h2>       <a href=\"{{ $json.download_url }}\" class=\"btn\" target=\"_blank\">Download PDF</a>     </div>   </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1260,
+        -40
+      ],
+      "id": "13e37d5f-362a-4acf-84b6-e8623b9353f3",
+      "name": "Send a message",
+      "webhookId": "bed4aa76-9697-4d7f-bd00-5e0d1a45f767",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "lovable-insight-builder/src/pages\n/Insights.tsx call webhook from here Line - 79"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        -180
+      ],
+      "id": "d5ea02b7-9149-4330-aad8-d9557c1a5323",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Api key of apitemplate"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -180
+      ],
+      "id": "787c9319-b5fc-41df-8445-cac196f59ab5",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "saiiiiiii90.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+            "content-length": "1429",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-US,en;q=0.9",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "223.185.46.5",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "960af2d617a27f39-MAA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com",
+            "priority": "u=1, i",
+            "referer": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com/",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "223.185.46.5, 172.68.147.251",
+            "x-forwarded-host": "saiiiiiii90.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-10-6888ffdd77-ctcg6",
+            "x-is-trusted": "yes",
+            "x-real-ip": "223.185.46.5"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "insights": [
+              {
+                "company": "samsung",
+                "products": [
+                  {
+                    "product_title": "Galaxy Watch8 Classic (Bluetooth, 4.6 cm) SM-L500NZKA Black",
+                    "price": 46999,
+                    "in_stock": true,
+                    "brand": "Samsung",
+                    "feature_summary": "Bluetooth connectivity, 4.6 cm display, available at ₹46999 with instant bank discount and EMI options"
+                  }
+                ]
+              },
+              {
+                "company": "noise",
+                "products": [
+                  {
+                    "product_title": "ColorFit Pro 5 Max Space Blue",
+                    "price": 3999,
+                    "in_stock": true,
+                    "brand": "Noise",
+                    "feature_summary": "1.96\" AMOLED display with 410x502 resolution, 7-day battery life, heart rate and SpO2 sensors, BT calling, IP68 water resistance"
+                  }
+                ]
+              },
+              {
+                "company": "fasttrack",
+                "products": [
+                  {
+                    "product_title": "Fastrack Limitless FS2+ Smart Watch, 2.01\" UltraVU Display, Functional Crown, SingleSync BT Calling, 110+ Sports Modes, 200+ Smartwatch Faces, Upto 7 Day Battery, AI Voice Assistant (Black)",
+                    "price": 1599,
+                    "in_stock": true,
+                    "brand": "Fastrack",
+                    "feature_summary": "2.01 inch UltraVU Display, SingleSync Bluetooth Calling, 110+ Sports Modes, 200+ Watch Faces, upto 7 Day Battery, AI Voice Assistant"
+                  }
+                ]
+              },
+              {
+                "company": "fire bolt",
+                "products": [
+                  {
+                    "product_title": "Fire Boltt Oracle Smartwatch Android OS, 4G LTE SIM + WiFi connectivity, Play Store- unlimited apps, 1.96 display, a robust 700 mAh battery & amazing strap designs (Onyx-Wave)",
+                    "price": 3899,
+                    "in_stock": true,
+                    "brand": "Fire Boltt",
+                    "feature_summary": "Android OS, 4G LTE & WiFi connectivity, 1.96 inch display, 700 mAh battery, IP67 Water Resistant"
+                  }
+                ]
+              }
+            ]
+          },
+          "webhookUrl": "https://saiiiiiii90.app.n8n.cloud/webhook/48f816b6-f20f-48c9-bab8-88f4b84c1878",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L3biCwJnqtCIUdou"
+  },
+  "versionId": "0e5701ab-cb3a-4135-917a-8c79bec587c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "c8FpkWRrOwLoco7V",
+  "tags": []
+}

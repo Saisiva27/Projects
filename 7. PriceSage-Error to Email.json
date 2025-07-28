@@ -1,0 +1,77 @@
+{
+  "name": "PriceSage-Error to Email",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "2143e41b-6f39-484b-93b7-2692fa6900e9",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "saisivamani27@gmail.com",
+        "subject": "=Error Occured in Workflow - {{ $json.workflow.name }}",
+        "message": "=<!DOCTYPE html> <html>   <head>     <style>       body {         font-family: Arial, sans-serif;         color: #333;         background-color: #f9f9f9;         padding: 20px;       }       .container {         background-color: #ffffff;         border: 1px solid #e0e0e0;         border-radius: 8px;         padding: 20px;         max-width: 600px;         margin: auto;       }       h2 {         color: #d9534f;         font-size: 20px;         margin-bottom: 10px;       }       p {         margin: 6px 0;         font-size: 15px;       }       pre {         background-color: #f5f5f5;         padding: 10px;         border-left: 4px solid #d9534f;         white-space: pre-wrap;         word-break: break-word;         font-size: 13px;         color: #c7254e;       }       a {         color: #337ab7;         text-decoration: none;         font-weight: bold;       }       .footer {         margin-top: 20px;         font-size: 13px;         color: #777;         text-align: center;       }     </style>   </head>   <body>     <div class=\"container\">       <h2>⚠ Workflow Execution Failed</h2>       <p><strong>Workflow: </strong>{{ $json.workflow.name }}</p>       <p><strong>Workflow ID:</strong> {{ $json.workflow.id }}</p>       <p><strong>Execution ID:</strong> {{ $json.execution.id }}</p>       <p><strong>Last Node Executed:</strong> {{ $json.execution.lastNodeExecuted }}</p>       <p><strong>Error Message:</strong> {{ $json.execution.error.message }}</p>       <p><strong>Execution URL:</strong> <a href=\"{{ $json.execution.url }}\" target=\"_blank\">View Execution</a></p>        <p><strong>Error Stack Trace:</strong></p>       <pre>{{$json.execution.error.stack}}</pre>        <div class=\"footer\">         This is an automated message from your n8n instance.       </div>     </div>   </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "75b21810-382a-4301-b6e1-a7c2060f3c9e",
+      "name": "Send a message",
+      "webhookId": "776d6610-9967-43f7-927f-a6c3f7ff3b5f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "configure this to all workflows from ... --> settings --> error workflow"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -100
+      ],
+      "id": "96157e27-8054-46b1-be0f-098a1aa45420",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "56fb1bc9-881f-4133-8802-590983d1e689",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "L3biCwJnqtCIUdou",
+  "tags": []
+}

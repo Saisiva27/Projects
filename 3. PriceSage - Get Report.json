@@ -1,0 +1,264 @@
+{
+  "name": "3. PriceSage - Get Report",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0dbbe6b0-2a89-4f86-9e98-42074b925a3c",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        -60
+      ],
+      "id": "8217002a-3f62-49f2-8cf8-2a11a59ac8ca",
+      "name": "Webhook",
+      "webhookId": "0dbbe6b0-2a89-4f86-9e98-42074b925a3c"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appIPpXtEjqM83P8C",
+          "mode": "list",
+          "cachedResultName": "PriceSage",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3R5YnDRSIIlxM9",
+          "mode": "list",
+          "cachedResultName": "detailedinfo",
+          "cachedResultUrl": "https://airtable.com/appIPpXtEjqM83P8C/tbl3R5YnDRSIIlxM9"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        -60
+      ],
+      "id": "081e8769-dd83-4ccc-bc22-54ebe3e15edb",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        640,
+        -60
+      ],
+      "id": "90290ad1-2e30-4e53-acd3-c043bd0b6435",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        200,
+        -60
+      ],
+      "id": "87e92c6a-571d-4937-b1e0-81c379e38761",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json.data;\n\nconst companyMap = new Map();\n\nfor (const product of input) {\n  const company = product[\"company name\"] || \"Unknown\";\n\n  const productEntry = {\n    \n    product_title: product.product_title || null,\n    price: product.price || null,\n    in_stock: product.in_stock || null,\n    brand: product.brand || null,\n    feature_summary: product.feature_summary || null\n  };\n\n  if (!companyMap.has(company)) {\n    companyMap.set(company, {\n      company,\n      products: []\n    });\n  }\n\n  companyMap.get(company).products.push(productEntry);\n}\n\nconst output = Array.from(companyMap.values());\n\nreturn output.map(entry => ({ json: entry }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        -60
+      ],
+      "id": "416d9343-b46d-457f-ac66-75621f73119b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a2bd659c-8dfc-468d-b18a-d7701ca3d5eb",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        -60
+      ],
+      "id": "05932cff-5e68-48ca-b62b-41202f05196e",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "content": "lovable-insight-builder/src/pages\n/Insights.tsx call the webhook from here Line - 44"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -220
+      ],
+      "id": "32b87d8a-f76c-48bc-9b87-715dd212bfb6",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "saiiiiiii90.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+            "content-length": "0",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-US,en;q=0.9",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "223.185.46.217",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "95ef166752b6dcf0-MAA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com",
+            "priority": "u=1, i",
+            "referer": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com/",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "223.185.46.217, 172.69.131.146",
+            "x-forwarded-host": "saiiiiiii90.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-10-6888ffdd77-ssdpj",
+            "x-is-trusted": "yes",
+            "x-real-ip": "223.185.46.217"
+          },
+          "params": {},
+          "query": {},
+          "body": {},
+          "webhookUrl": "https://saiiiiiii90.app.n8n.cloud/webhook/0dbbe6b0-2a89-4f86-9e98-42074b925a3c",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L3biCwJnqtCIUdou"
+  },
+  "versionId": "68c8e074-f4da-4e4c-9571-8b546774272c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "xXOCuetlp7DMlGB9",
+  "tags": []
+}

@@ -1,0 +1,150 @@
+{
+  "name": "AuraLeads AI - Customer Support User Queries Resolve",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a7716b5a-0fd6-4f61-9cc8-993771380457",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -40
+      ],
+      "id": "9afc84e5-c0cc-44fd-a9de-24ea96c51198",
+      "name": "Webhook",
+      "webhookId": "a7716b5a-0fd6-4f61-9cc8-993771380457"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appYKVleaprroeHwt",
+          "mode": "list",
+          "cachedResultName": "AuraLeadsAI",
+          "cachedResultUrl": "https://airtable.com/appYKVleaprroeHwt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblYLr6tqwEM4I1Pj",
+          "mode": "list",
+          "cachedResultName": "CustomerQueries",
+          "cachedResultUrl": "https://airtable.com/appYKVleaprroeHwt/tblYLr6tqwEM4I1Pj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.body.message.toolCallList[0].function.arguments.Name }}",
+            "MobileNumber": "={{ $json.body.message.toolCallList[0].function.arguments.MobileNumber }}",
+            "UserQuery": "={{ $json.body.message.toolCallList[0].function.arguments.UserQuery }}",
+            "email": "={{ $json.body.message.toolCallList[0].function.arguments.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "MobileNumber",
+              "displayName": "MobileNumber",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "UserQuery",
+              "displayName": "UserQuery",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Modified",
+              "displayName": "Last Modified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -100,
+        -40
+      ],
+      "id": "acbd4163-7d8c-492e-b9eb-74325330d1c8",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "hhgx7xYyXYzDJZZu",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb90918f-c7de-482a-9ec7-b678511bb035",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "NQN7cPKc65fevz0w",
+  "tags": []
+}

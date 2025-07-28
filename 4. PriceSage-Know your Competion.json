@@ -1,0 +1,405 @@
+{
+  "name": "PriceSage-Know your Competion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "37102272-99e4-42c4-aec6-25f5bbdac9d3",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        -60
+      ],
+      "id": "3e5d0973-7c29-4a4d-9121-b97bc8343a9b",
+      "name": "Webhook",
+      "webhookId": "37102272-99e4-42c4-aec6-25f5bbdac9d3"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        -60
+      ],
+      "id": "d21d7bf4-af87-4714-b944-78ce49504d90",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.product_description }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=\n### Production-Grade Prompt\n\n**Persona**\n\nYou are an AI Market Intelligence Analyst. Your expertise is in synthesizing publicly available information to conduct a comprehensive competitive landscape analysis based on a user's product concept. You are methodical, thorough, and your output is always a clean, structured, and valid JSON object for programmatic use.\n\n**Context**\n\nYou will be provided with a user's product description in the placeholder in user prompt. Your task is to perform a deep competitive analysis using your extensive knowledge of the global market (up to your last training date, July 2025). Your analysis should provide a strategic overview for a founder planning to enter this market.\n\n**Task & Detailed Instructions**\n\nBased on the user's product description, generate a comprehensive competitive analysis. You must populate the fields of the final JSON object according to the detailed requirements below:\n\n1.  **competitors**: Identify and list the top 5-7 direct and major indirect competitors relevant to the user's product description. For each competitor, provide both the company name and the specific product line where applicable (e.g., \"Unilever (Axe)\", \"LVMH (Dior Sauvage)\"). Prioritize brands with a significant D2C or e-commerce presence.\n\n2.  **positioning**: For the identified competitors, summarize their primary market positioning strategies. Analyze their target audience (e.g., young men 18-25, affluent professionals, health-conscious women), their brand ethos (e.g., rugged and adventurous, sophisticated and classic, all-natural and organic), and their core marketing message.\n\n3.  **pricing\\_models**: Describe the common pricing tiers and strategies prevalent in this market. Provide estimated price ranges for standard product configurations (e.g., \"Budget Tier: $5-$15 for 100ml\", \"Mid-Range/Masstige: $30-$70\", \"Premium/Luxury: $90+\"). Note any common models like subscriptions, limited editions, or gift set bundling.\n\n4.  **key\\_differentiators**: List the most critical points of differentiation that competitors use to stand out from one another. Go beyond price and include tangible factors like unique formulas or ingredients (e.g., 'no-gas formula', 'sustainably sourced sandalwood'), specific performance claims (e.g., '72-hour protection', 'long-lasting sillage'), packaging innovation, brand values (e.g., 'cruelty-free', 'vegan', 'recyclable packaging'), and distinct marketing campaigns.\n\n5.  **market\\_trends**: Identify and describe 3-5 major, current market trends influencing this product category as of mid-2025. This should include consumer behavior shifts (e.g., growing demand for gender-neutral/unisex scents, focus on sustainability and clean ingredients), technological impacts (e.g., rise of influencer marketing on platforms like TikTok, AI-driven scent personalization), and broader socio-economic factors (e.g., continued emphasis on self-care and personal wellness post-pandemic).\n\n**Output Format**\n\n**CRITICAL:** Your entire response must be a single, valid JSON object and nothing else. Do not include any introductory text, concluding remarks, or markdown formatting like \\`\\`\\`json. The JSON structure must strictly adhere to the schema provided below.\n\n```json\n{\n  \"competitors\": \"...\",\n  \"positioning\": \"...\",\n  \"pricing_models\": \"...\",\n  \"key_differentiators\": \"...\",\n  \"market_trends\": \"...\"\n}\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -60
+      ],
+      "id": "dc1a9662-7000-44f5-bae1-7b9bac828ce2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"competitors\": \"Who the competitors are (product/company names)\",\n  \"positioning\": \"How they position themselves\",\n  \"pricing_models\": \"Pricing models (if available)\",\n  \"key_differentiators\": \"Key differentiators\",\n  \"market_trends\": \"Market trends (if relevant)\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        60,
+        160
+      ],
+      "id": "3685910d-99e7-45ff-a453-8e8660a754d0",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        160
+      ],
+      "id": "b395c8c5-0753-470a-b44e-4973af4aefaa",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        160,
+        280
+      ],
+      "id": "570fbb61-379a-4e78-b766-216ce5c1373f",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert PDF HTML generator assistant.\n\nYou will be given a containing a detailed analysis paragraph.\n\nuse the paragraph and make it give as readable format not just like a single para use subheadings and a main heading \"Know Your Competition Details - [Extract from Paragraph] \"\n\nYour task is to return a single valid JSON object that contains:\n\n- \"body\": a complete HTML string that includes embedded CSS inside a `<style>` tag at the top. Use semantic tags and structure the content for easy PDF readability. The main analysis should appear inside a <div class='section'> with a proper heading and paragraph.\n- \"data\": an object with a key `\"name\"` whose value is a concise PDF report title (e.g., `\"Know your competition Details\"`).\n- \"settings\": a standard object with the following fixed keys for A4 PDF formatting.\n\n### Formatting Requirements:\n\n**CSS (embed inside `<style>` at the top of body):**\n```css\nbody { font-family: Arial, sans-serif; padding: 20px; color: #222; }\n.section { margin-bottom: 24px; }\nh2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }\np { margin: 0; line-height: 1.5; }\nhr { border: none; border-top: 1px solid #ccc; margin: 24px 0; }\n\n\n\n\nexample response : \n{\n  \"body\": \"<style>…</style><div class='section'>…</div>\",\n  \"data\": {\n    \"name\": \"Know your competition details\"\n  },\n  \"settings\": {\n    \"paper_size\": \"A4\",\n    \"orientation\": \"1\",\n    \"margin_top\": \"40\",\n    \"margin_right\": \"10\",\n    \"margin_bottom\": \"40\",\n    \"margin_left\": \"10\",\n    \"print_background\": \"1\"\n  }\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        540,
+        -60
+      ],
+      "id": "c769e65e-3bc0-451e-8b07-33d01cc63d10",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        540,
+        160
+      ],
+      "id": "e4251238-5406-4e4b-b94a-f70a953e321a",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "oxhzUGnlbGTJmEUH",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"body\": \"<style>…</style><div class='section'>…</div>\",\n  \"data\": {\n    \"name\": \"Personalized Competitor Price Intelligence Report\"\n  },\n  \"settings\": {\n    \"paper_size\": \"A4\",\n    \"orientation\": \"1\",\n    \"margin_top\": \"40\",\n    \"margin_right\": \"10\",\n    \"margin_bottom\": \"40\",\n    \"margin_left\": \"10\",\n    \"print_background\": \"1\"\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        160
+      ],
+      "id": "37ff8afd-ba0a-41c7-9056-28a43e299c10",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rest.apitemplate.io/v2/create-pdf-from-html",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "1932MzM3MzE6MzA5MTU6V3hKdExndVp0RjlMZkFiOQ="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        -60
+      ],
+      "id": "7a354d88-0de5-4f64-bbf6-3689e46a1e0c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "saisivamani27@gmail.com",
+        "subject": "Your Brief Competitor Insight is Ready",
+        "message": "=<!DOCTYPE html> <html> <head>   <meta charset=\"UTF-8\">   <title>Competitor Snapshot Report</title>   <style>     body {       font-family: Arial, sans-serif;       color: #333333;       background-color: #f4f4f4;       margin: 0;       padding: 0;     }     .container {       max-width: 600px;       margin: 40px auto;       background-color: #ffffff;       padding: 30px;       border-radius: 8px;       box-shadow: 0 2px 8px rgba(0,0,0,0.05);     }     h1 {       font-size: 22px;       color: #1a1a1a;       margin-bottom: 16px;     }     p {       font-size: 16px;       line-height: 1.6;     }     .button {       display: inline-block;       margin-top: 20px;       background-color: #0073e6;       color: #ffffff;       padding: 12px 20px;       text-decoration: none;       font-weight: bold;       border-radius: 6px;     }     .footer {       margin-top: 30px;       font-size: 13px;       color: #999999;       text-align: center;     }   </style> </head> <body>   <div class=\"container\">     <h1>Know Your Competition</h1>     <p>We’ve prepared a brief snapshot to help you better understand the current competitive landscape.</p>              <a href=\"{{ $json.download_url }}\" class=\"button\" target=\"_blank\">View My Report</a>      <div class=\"footer\">       This report is automatically generated. No reply needed.     </div>   </div> </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -60
+      ],
+      "id": "2207450d-d196-4282-a9a3-f1951960ddc3",
+      "name": "Send a message",
+      "webhookId": "62cd99bd-82cd-42a3-8a7c-31b67b8381d1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Kb9zinSs9KQdugIc",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "lovable-insight-builder/src/pages\n/Index.tsx   call this webhook here  Line - 53"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -220
+      ],
+      "id": "2b57822f-6192-41a2-aaf9-cc0ece5f161d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Add Api key of API template site"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -200
+      ],
+      "id": "20f58a14-208c-4ac9-8aa5-2a99f8f719ec",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "saiiiiiii90.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+            "content-length": "104",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-US,en;q=0.9",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "223.185.45.43",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "95e9bcbca5ad7ab9-MAA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com",
+            "priority": "u=1, i",
+            "referer": "https://8c8c6e7d-0009-48e4-88e6-50b72d0f3230.lovableproject.com/",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "223.185.45.43, 172.69.131.219",
+            "x-forwarded-host": "saiiiiiii90.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-10-6888ffdd77-75jhz",
+            "x-is-trusted": "yes",
+            "x-real-ip": "223.185.45.43"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "product_description": "iam launching master copy of gucci lady hand bags in the price segment of 2000"
+          },
+          "webhookUrl": "https://saiiiiiii90.app.n8n.cloud/webhook/37102272-99e4-42c4-aec6-25f5bbdac9d3",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L3biCwJnqtCIUdou"
+  },
+  "versionId": "452707f6-efa3-44d8-8911-9a07eb050079",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0923497ab686db4f8fe4b332a011c2b13165f1a79e12541e2c2ffc08fdb2d746"
+  },
+  "id": "QaqjvVTKcEd8Ltd5",
+  "tags": []
+}
